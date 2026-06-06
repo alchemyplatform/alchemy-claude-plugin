@@ -1,0 +1,24 @@
+{
+  "name": "alchemy",
+  "displayName": "Alchemy",
+  "version": "0.1.0",
+  "description": "Query blockchain data across 100+ chains and manage Alchemy apps — token balances & prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code and Cowork.",
+  "author": {
+    "name": "Alchemy",
+    "email": "support@alchemy.com",
+    "url": "https://www.alchemy.com"
+  },
+  "homepage": "https://docs.alchemy.com/docs/alchemy-mcp-server",
+  "repository": "https://github.com/alchemyplatform/alchemy-claude-plugin",
+  "license": "MIT",
+  "keywords": [
+    "alchemy",
+    "blockchain",
+    "web3",
+    "ethereum",
+    "solana",
+    "nft",
+    "defi",
+    "mcp"
+  ]
+}

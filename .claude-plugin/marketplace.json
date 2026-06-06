@@ -1,0 +1,19 @@
+{
+  "name": "alchemy",
+  "metadata": {
+    "description": "Official Alchemy plugin for Claude Code & Cowork: blockchain data across 100+ chains, app management, and Solana — powered by the hosted Alchemy MCP server.",
+    "version": "0.1.0"
+  },
+  "owner": {
+    "name": "Alchemy",
+    "email": "support@alchemy.com",
+    "url": "https://www.alchemy.com"
+  },
+  "plugins": [
+    {
+      "name": "alchemy",
+      "source": "./plugins/alchemy",
+      "description": "Query blockchain data across 100+ chains and manage Alchemy apps — balances, prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code and Cowork."
+    }
+  ]
+}
