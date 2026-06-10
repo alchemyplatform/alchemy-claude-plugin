@@ -1,6 +1,6 @@
-# Alchemy plugin for Claude Code & Cowork
+# Alchemy plugin for Claude Code
 
-A [Claude Code](https://code.claude.com/) / Cowork plugin that connects Claude to
+A [Claude Code](https://code.claude.com/) plugin that connects Claude to
 [Alchemy](https://www.alchemy.com/) — query blockchain data across 100+ chains and
 manage your Alchemy apps directly from your agent, backed by the hosted
 [Alchemy MCP server](https://mcp.alchemy.com/mcp).
