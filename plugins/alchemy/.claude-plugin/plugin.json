@@ -2,7 +2,7 @@
   "name": "alchemy",
   "displayName": "Alchemy",
   "version": "0.1.0",
-  "description": "Query blockchain data across 100+ chains and manage Alchemy apps — token balances & prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code and Cowork.",
+  "description": "Query blockchain data across 100+ chains and manage Alchemy apps — token balances & prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code.",
   "author": {
     "name": "Alchemy",
     "email": "support@alchemy.com",

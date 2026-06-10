@@ -1,8 +1,8 @@
 # Alchemy
 
 Query blockchain data across 100+ chains and manage Alchemy apps — token balances
-& prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code
-and Cowork. Tools are served by the hosted
+& prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude
+Code. Tools are served by the hosted
 [Alchemy MCP server](https://mcp.alchemy.com/mcp); authentication is OAuth via the
 Alchemy Dashboard.
 
