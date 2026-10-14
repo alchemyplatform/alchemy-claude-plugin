@@ -39,18 +39,24 @@ TMP="$(mktemp -d)"
 STAGING=""
 BACKUP=""
 SWAPPING=0
+COMMITTED=0
 LOCK_NEW=""
 LOCK_PREV="$TMP/skills-source.lock.prev"
 LOCK_HAD=0
 LOCK_TOUCHED=0
 
-# On failure after the swap has started, put back both the previous skills
-# directory and the previous lock file.
+# On failure before the commit point, put back both the previous skills
+# directory and the previous lock file. A signal can land between any two
+# commands, so recovery keys off COMMITTED (one assignment) and also handles an
+# interruption right after the backup rename, before swap mode is entered.
 cleanup() {
   status=$?
   trap - EXIT
-  if [ "$status" -ne 0 ]; then
-    if [ "$SWAPPING" -eq 1 ]; then
+  if [ "$status" -ne 0 ] && [ "$COMMITTED" -eq 0 ]; then
+    if [ "$SWAPPING" -eq 0 ] && [ -n "$BACKUP" ] && [ -e "$BACKUP" ] && [ ! -e "$DEST" ]; then
+      mv "$BACKUP" "$DEST"
+      echo "Restored the previous $DEST" >&2
+    elif [ "$SWAPPING" -eq 1 ]; then
       rm -rf "$DEST"
       if [ -n "$BACKUP" ] && [ -e "$BACKUP" ]; then
         mv "$BACKUP" "$DEST"
@@ -68,6 +74,9 @@ cleanup() {
       fi
       echo "Restored the previous $LOCK" >&2
     fi
+  fi
+  if [ "$COMMITTED" -eq 1 ] && [ -n "$BACKUP" ]; then
+    rm -rf "$BACKUP"
   fi
   [ -z "$STAGING" ] || rm -rf "$STAGING"
   [ -z "$LOCK_NEW" ] || rm -f "$LOCK_NEW"
@@ -139,12 +148,13 @@ fi
 # commit point below, the cleanup trap restores the previous skills directory
 # from the backup and the previous lock content.
 # Enter swap mode only after the backup rename has succeeded, so a failed
-# rename never makes the cleanup trap delete the original tree.
+# rename never makes the cleanup trap delete the original tree. BACKUP is
+# recorded before the rename so an interruption right after it can still be
+# undone.
 if [ -e "$DEST" ]; then
-  BACKUP_CANDIDATE="$PLUGIN_DIR/.skills-backup.$$"
-  rm -rf "$BACKUP_CANDIDATE"
-  mv "$DEST" "$BACKUP_CANDIDATE"
-  BACKUP="$BACKUP_CANDIDATE"
+  BACKUP="$PLUGIN_DIR/.skills-backup.$$"
+  rm -rf "$BACKUP"
+  mv "$DEST" "$BACKUP"
 fi
 SWAPPING=1
 mv "$STAGING" "$DEST"
@@ -156,12 +166,9 @@ if [ "$UPDATE" -eq 1 ]; then
 fi
 
 # Commit point: the swap and the lock are both published, so drop the backup.
-OLD="$BACKUP"
-BACKUP=""
-SWAPPING=0
-LOCK_TOUCHED=0
-if [ -n "$OLD" ]; then
-  rm -rf "$OLD"
+COMMITTED=1
+if [ -n "$BACKUP" ]; then
+  rm -rf "$BACKUP"
 fi
 
 if [ "$UPDATE" -eq 1 ]; then
