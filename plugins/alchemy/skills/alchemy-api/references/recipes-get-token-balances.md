@@ -27,7 +27,7 @@ Fetch all ERC-20 token balances for a wallet.
 
 ## Example (curl)
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_getTokenBalances","params":["0x00000000219ab540356cbb839cbe05303d7705fa"]}'
 ```

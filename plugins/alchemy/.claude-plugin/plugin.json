@@ -1,8 +1,8 @@
 {
   "name": "alchemy",
   "displayName": "Alchemy",
-  "version": "0.1.0",
-  "description": "Query blockchain data across 100+ chains and manage Alchemy apps — token balances & prices, NFTs, transfers, transactions, gas, and Solana — directly in Claude Code.",
+  "version": "0.2.0",
+  "description": "Query blockchain data across 100+ chains, simulate transactions, manage Alchemy apps, and work with Solana through the hosted Alchemy MCP server: token balances & prices, NFTs, transfers, transactions, and gas. Does not send, swap, bridge, or pay.",
   "author": {
     "name": "Alchemy",
     "email": "support@alchemy.com",
@@ -10,6 +10,11 @@
   },
   "homepage": "https://docs.alchemy.com/docs/alchemy-mcp-server",
   "repository": "https://github.com/alchemyplatform/alchemy-claude-plugin",
+  "icon": "./assets/alchemy.png",
+  "documentationUrl": "https://www.alchemy.com/docs/alchemy-claude-plugin",
+  "supportUrl": "https://www.alchemy.com/support",
+  "privacyPolicyUrl": "https://www.alchemy.com/policies/privacy-policy",
+  "termsOfServiceUrl": "https://www.alchemy.com/policies/terms",
   "license": "MIT",
   "keywords": [
     "alchemy",

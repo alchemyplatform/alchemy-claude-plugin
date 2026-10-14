@@ -26,7 +26,7 @@ Fetch NFTs owned by a wallet address.
 
 ## Example (curl)
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
 ```
 
 ## Example (TypeScript)

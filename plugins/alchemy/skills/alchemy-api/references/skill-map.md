@@ -3,8 +3,8 @@
 Complete index of all reference files organized by product area. Use the Endpoint Selector in SKILL.md for quick routing to the most common tasks.
 
 > **Wrong skill?** This index belongs to `alchemy-api`, the app-code-with-API-key path. For other paths:
-> - **Live agent work** in this session: use `alchemy-cli` if `@alchemy/cli` is installed locally, otherwise `alchemy-mcp` (hosted MCP server).
-> - **App code without an API key** (autonomous agent, or explicit x402/MPP): use `agentic-gateway`.
+> - **Live agent work** in this session: use `alchemy-mcp` (hosted MCP server).
+> - **App code without an API key**: copy your API key from the Alchemy Dashboard (https://dashboard.alchemy.com) into `ALCHEMY_API_KEY`.
 
 ## Node
 | File | Name | Short Description |
@@ -12,10 +12,10 @@ Complete index of all reference files organized by product area. Use the Endpoin
 | `references/node-overview.md` | node-apis | Core JSON-RPC and WebSocket APIs for EVM chains via Alchemy node endpoints, plus Debug/Trace and utility methods. Use when building EVM integrations that need standard RPC calls, real-time subscriptions, enhanced Alchemy methods, or execution-level tracing |
 | `references/node-debug-api.md` | Debug API | Debug methods provide execution-level traces for a transaction or call. Use these for simulation, gas profiling, and internal call inspection |
 | `references/node-enhanced-apis.md` | Enhanced APIs (Alchemy RPC Extensions) | Alchemy provides enhanced JSON-RPC methods (prefixed with `alchemy_`) that offer indexed, higher-level data without manual log scanning |
-| `references/node-json-rpc.md` | JSON-RPC (EVM) | Use Alchemy's EVM JSON-RPC endpoints for standard blockchain reads and writes (e.g., `eth_call`, `eth_getLogs`, `eth_sendRawTransaction`). This is the baseline for any EVM integration |
+| `references/node-json-rpc.md` | JSON-RPC (EVM) | Use Alchemy's EVM JSON-RPC endpoints for standard blockchain reads and writes (e.g., `eth_call`, `eth_getLogs`). This is the baseline for any EVM integration |
 | `references/node-trace-api.md` | Trace API | Trace APIs expose internal call data and state changes for transactions and blocks. Useful for analytics and auditing |
 | `references/node-utility-api.md` | Utility API | Convenience RPC methods that reduce round trips for common tasks like bulk transaction receipt retrieval |
-| `references/node-websocket-subscriptions.md` | WebSocket Subscriptions | Use WebSockets for real-time blockchain events without polling. Best for pending transactions, new blocks, and logs |
+| `references/node-websocket-subscriptions.md` | WebSocket Subscriptions (EVM) | EVM `eth_subscribe` for real-time blockchain events without polling. Best for pending transactions, new blocks, and logs. For Solana PubSub, see `solana-websocket-subscriptions.md` |
 
 ## Data
 | File | Name | Short Description |
@@ -25,6 +25,7 @@ Complete index of all reference files organized by product area. Use the Endpoin
 | `references/data-portfolio-apis.md` | Portfolio APIs | Portfolio APIs provide consolidated wallet views (tokens, NFTs, and transaction history) across multiple networks in single requests |
 | `references/data-prices-api.md` | Prices API | Query token prices for current and historical data using Alchemy's Prices API |
 | `references/data-simulation-api.md` | Simulation API | Simulate transactions before submitting them on-chain. Use this for safety checks and user previews |
+| `references/data-stellar-api.md` | Stellar Data API | REST endpoints (POST /data/stellar/...) for indexed Stellar transfer history, account balances, and NFT holdings across native XLM, classic trustline assets, and Soroban contract tokens |
 | `references/data-token-api.md` | Token API | Fetch token balances, metadata, and allowances without manual contract calls. Token API methods are exposed as Alchemy JSON-RPC methods |
 | `references/data-transfers-api.md` | Transfers API | Query historical transfers across ERC-20/721/1155 and native transfers without manual log scanning |
 
@@ -43,7 +44,7 @@ Complete index of all reference files organized by product area. Use the Endpoin
 ## Solana
 | File | Name | Short Description |
 | --- | --- | --- |
-| `references/solana-overview.md` | solana | Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets, and wallet integration. Use when building Solana applications that need RPC access, NFT/asset queries, or Solana wallet tooling. For high-throughput streaming, see the yellowstone-grpc skill |
+| `references/solana-overview.md` | solana | Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets. Use when building Solana applications that need RPC access or NFT/asset queries. For high-throughput streaming, see `references/solana-grpc-overview.md` |
 | `references/solana-das-api.md` | Solana DAS (Digital Asset Standard) API | DAS provides normalized access to Solana NFT and compressed asset data |
 | `references/solana-grpc-best-practices.md` | Yellowstone Best Practices | Practical guidance to keep Yellowstone consumers reliable and efficient |
 | `references/solana-grpc-details.md` | Yellowstone gRPC Overview | Yellowstone gRPC provides high-throughput Solana data streams for blocks, transactions, accounts, and slots. Use this for real-time indexing at scale |
@@ -55,7 +56,7 @@ Complete index of all reference files organized by product area. Use the Endpoin
 | `references/solana-grpc-subscribe-slots.md` | Subscribe Slots | Slot updates provide heartbeat-style updates and can be used to track chain progress |
 | `references/solana-grpc-subscribe-transactions.md` | Subscribe Transactions | Transaction streams deliver raw or decoded transaction data in near real-time |
 | `references/solana-rpc.md` | Solana JSON-RPC | Standard Solana JSON-RPC endpoints for account, program, and transaction data |
-| `references/solana-wallets.md` | Solana Wallet Integration | High-level guidance for integrating Solana wallets and signing transactions |
+| `references/solana-websocket-subscriptions.md` | Solana WebSocket Subscriptions (PubSub) | Native `*Subscribe` / `*Unsubscribe` PubSub methods over WebSocket for real-time account, program, log, signature, slot, and root updates |
 
 ## Sui gRPC
 | File | Name | Short Description |
@@ -63,25 +64,11 @@ Complete index of all reference files organized by product area. Use the Endpoin
 | `references/sui-grpc-overview.md` | sui-grpc | High-performance gRPC API for Sui blockchain access. Supports objects, transactions, balances, Move packages, name service, subscriptions, and signature verification. Use when building Sui integrations that need typed, efficient access with streaming and field masking |
 | `references/sui-grpc-quickstart.md` | Sui gRPC Quickstart | Endpoints, authentication, and first gRPC calls for Sui |
 | `references/sui-grpc-objects-and-ledger.md` | Sui gRPC Objects and Ledger | LedgerService: query objects, transactions, checkpoints, and epochs |
-| `references/sui-grpc-transactions.md` | Sui gRPC Transactions | TransactionExecutionService: execute and simulate Sui transactions |
 | `references/sui-grpc-state-and-balances.md` | Sui gRPC State and Balances | StateService: coin balances, dynamic fields, and owned objects |
 | `references/sui-grpc-move-packages.md` | Sui gRPC Move Packages | MovePackageService: inspect Move packages, functions, and data types |
 | `references/sui-grpc-name-service.md` | Sui gRPC Name Service | NameService: resolve SuiNS names to addresses and reverse lookups |
 | `references/sui-grpc-subscriptions.md` | Sui gRPC Subscriptions | SubscriptionService: stream real-time checkpoint data |
 | `references/sui-grpc-signature-verification.md` | Sui gRPC Signature Verification | SignatureVerificationService: verify user signatures including ZkLogin |
-
-## Wallets
-| File | Name | Short Description |
-| --- | --- | --- |
-| `references/wallets-overview.md` | wallets | Integration guide for Alchemy Wallet APIs (formerly "Smart Wallets") including Account Kit, account abstraction, bundler, gas manager, and paymaster. Use when building wallet onboarding flows, sponsoring gas, or integrating smart accounts into your application |
-| `references/wallets-account-kit.md` | Account Kit | Account Kit is Alchemy's wallet SDK for onboarding users and managing wallet UX. Use it for embedded wallet flows or seamless authentication |
-| `references/wallets-bundler.md` | Bundler | A bundler aggregates and submits account abstraction user operations. Use this when integrating smart accounts (Wallet APIs) |
-| `references/wallets-details.md` | Wallets Overview | Alchemy Wallets tooling helps developers embed or integrate wallets with minimal infrastructure. This section is intentionally basic and focuses on integration touchpoints |
-| `references/wallets-gas-manager.md` | Gas Manager | Gas Manager (paymaster) enables gas sponsorship and cost control for smart wallet flows |
-| `references/wallets-smart-wallets.md` | Smart Wallets (concept) | Smart wallets (account abstraction) are programmable accounts with features like session keys, batched transactions, and gas sponsorship. Alchemy exposes these via the Wallet APIs product |
-| `references/wallets-solana-notes.md` | Solana Wallet Notes | Solana wallet integration differs from EVM. Use Solana-specific tooling and RPC semantics |
-| `references/wallets-supported-chains.md` | Wallet Supported Chains | Wallet tooling may support a subset of chains compared to raw RPC. Always confirm chain support before launch |
-| `references/wallets-wallet-apis.md` | Wallet APIs | High-level wallet APIs enable programmatic wallet operations such as signing, transaction preparation, or account management. This guide stays minimal and focuses on integration awareness |
 
 ## Rollups
 | File | Name | Short Description |
@@ -107,32 +94,9 @@ Complete index of all reference files organized by product area. Use the Endpoin
 ## Operational
 | File | Name | Short Description |
 | --- | --- | --- |
-| `references/operational-overview.md` | operational | Operational guidance for securely and reliably integrating Alchemy APIs. Covers API key management, JWT authentication, rate limits, compute unit budgeting, monitoring, alerting, and production readiness. Use before deploying any Alchemy integration to production |
-| `references/operational-alerts.md` | Alerts | Set alerts to catch rate limit issues, spikes in usage, or webhook failures |
-| `references/operational-allowlists.md` | Allowlists | Allowlisting restricts API key usage to approved IPs or domains, reducing key abuse risk |
 | `references/operational-auth-and-keys.md` | Auth and API Keys | Alchemy uses API keys for most products. Keep keys server-side and scope them to environments |
+| `references/operational-admin-api.md` | Admin API | Public REST surface (api.g.alchemy.com/admin-api/v1/...) for managing apps, listing supported chains, and reading usage metrics. Bearer auth |
 | `references/operational-best-practices.md` | Production Best Practices | Operational checklist for deploying Alchemy-backed services |
-| `references/operational-dashboard-tools.md` | Dashboard Tools | Use the Alchemy dashboard to create apps, manage keys, track usage, and configure webhooks |
 | `references/operational-jwt-and-header-auth.md` | JWT and Header-Based Auth | Some Alchemy APIs use header-based auth (e.g., JWTs or API tokens) instead of API keys in URLs. Use this for server-side integrations where you need stronger access control |
-| `references/operational-pricing-and-plans.md` | Pricing and Plans | Alchemy plans are primarily based on compute units and product access. Choose a plan that matches your expected traffic and data needs |
 | `references/operational-rate-limits-and-compute-units.md` | Rate Limits and Compute Units | Alchemy meters usage using compute units (CU) and enforces per-key rate limits. Plan your request patterns accordingly |
-| `references/operational-request-logs.md` | Request Logs | Request logs help debug failed calls and monitor latency |
-| `references/operational-roles-and-sso.md` | Roles and SSO | Team access control ensures API keys and billing settings are managed safely |
-| `references/operational-sandbox.md` | Sandbox / Test Environment | Use testnets or a separate Alchemy app for safe development and QA |
 | `references/operational-supported-networks.md` | Supported Networks | Alchemy supports multiple EVM and Solana networks. Always verify network availability in the dashboard for each product |
-
-## Ecosystem
-| File | Name | Short Description |
-| --- | --- | --- |
-| `references/ecosystem-overview.md` | ecosystem | Popular open-source libraries that pair well with Alchemy for building crypto applications. Covers EVM tools (viem, ethers, web3.js, wagmi, RainbowKit, Hardhat, Foundry) and Solana tools (solana/web3.js, spl-token, Anchor, Metaplex). Use when choosing or configuring a client library for your Alchemy integration |
-| `references/ecosystem-anchor.md` | Anchor | Anchor is a Solana framework for building programs with a higher-level Rust and TypeScript SDK |
-| `references/ecosystem-ethers.md` | Ethers.js | Ethers.js is a widely used Ethereum library for wallets, providers, and contract interactions |
-| `references/ecosystem-foundry.md` | Foundry | Foundry is a fast, Rust-based Ethereum toolchain for testing and deployment |
-| `references/ecosystem-hardhat.md` | Hardhat | Hardhat is a popular Ethereum development environment for compiling, testing, and deploying contracts |
-| `references/ecosystem-metaplex.md` | Metaplex | Metaplex provides NFT standards and tooling on Solana, including metadata and token standards |
-| `references/ecosystem-rainbowkit.md` | RainbowKit | RainbowKit is a wallet connection UI kit commonly used with wagmi |
-| `references/ecosystem-solana-web3js.md` | @solana/web3.js | The primary JavaScript library for Solana RPC, transactions, and accounts |
-| `references/ecosystem-spl-token.md` | SPL Token | SPL Token is the standard token program on Solana and includes tools for minting and token account management |
-| `references/ecosystem-viem.md` | Viem | Viem is a modern TypeScript Ethereum client library with strong types and a functional API |
-| `references/ecosystem-wagmi.md` | wagmi | wagmi provides React hooks for Ethereum, commonly used with wallet connectors and UI kits |
-| `references/ecosystem-web3js.md` | Web3.js | Web3.js is a long-standing Ethereum JavaScript library for providers and contracts |

@@ -8,7 +8,6 @@ tags:
   - grpc
 related:
   - sui-grpc-overview.md
-  - sui-grpc-transactions.md
 updated: 2026-04-15
 ---
 # Sui gRPC — Objects and Ledger (LedgerService)
@@ -38,7 +37,6 @@ The `LedgerService` provides methods for querying objects, transactions, checkpo
 
 ## Related Files
 - `sui-grpc-overview.md`
-- `sui-grpc-transactions.md`
 
 ## Official Docs
 - [Objects and Ledger](https://www.alchemy.com/docs/reference/sui-grpc-objects-and-ledger)

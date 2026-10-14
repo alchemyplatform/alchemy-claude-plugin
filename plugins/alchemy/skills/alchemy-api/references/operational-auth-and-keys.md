@@ -8,7 +8,6 @@ tags:
   - operations
 related:
   - operational-jwt-and-header-auth.md
-  - operational-allowlists.md
 updated: 2026-02-05
 ---
 # Auth and API Keys
@@ -23,15 +22,13 @@ Alchemy uses API keys for most products. Keep keys server-side and scope them to
 
 ## Example Usage
 ```bash
-export ALCHEMY_API_KEY="..."
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}'
 ```
 
 ## Related Files
 - `operational-jwt-and-header-auth.md`
-- `operational-allowlists.md`
 
 ## Official Docs
 - [Create an API Key](https://www.alchemy.com/docs/create-an-api-key)

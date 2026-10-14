@@ -42,7 +42,7 @@ For detailed parameters, request/response examples, and response schemas, see th
 ## Quick Example
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -64,18 +64,8 @@ curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy tokens balances 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --json --no-interactive
-  alchemy tokens metadata 0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48
-  alchemy transfers 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --category erc20,erc721
-  alchemy simulate asset-changes --tx '{"from":"0xd8dA...","to":"0xA0b8...","data":"0xa9059cbb..."}'
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `getTokenBalances`, `getTokenMetadata`, `getTokenAllowance`, `getAssetTransfers`, `simulateAssetChanges`, `simulateExecution` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/{chainNetwork}/v2` (x402) or `https://mpp.alchemy.com/{chainNetwork}/v2` (MPP).
 
 ## Official Docs
 - [Enhanced APIs Overview](https://www.alchemy.com/docs/reference/enhanced-apis-overview)

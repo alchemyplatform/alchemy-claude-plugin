@@ -26,7 +26,7 @@ Resolve token metadata (name, symbol, decimals, logo) for a contract.
 
 ## Example (curl)
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_getTokenMetadata","params":["0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"]}'
 ```

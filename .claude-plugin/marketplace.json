@@ -2,7 +2,7 @@
   "name": "alchemy",
   "metadata": {
     "description": "Official Alchemy plugin for Claude Code: blockchain data across 100+ chains, app management, and Solana — powered by the hosted Alchemy MCP server.",
-    "version": "0.1.0"
+    "version": "0.2.0"
   },
   "owner": {
     "name": "Alchemy",

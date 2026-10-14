@@ -43,7 +43,7 @@ Returns fungible tokens (native + ERC-20 + SPL) with balances, prices, and metad
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/assets/tokens/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/assets/tokens/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [{
@@ -136,7 +136,7 @@ Returns raw token balances (without prices/metadata). More efficient when you on
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/assets/tokens/balances/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/assets/tokens/balances/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [{
@@ -205,7 +205,7 @@ Returns NFTs owned by a wallet across multiple networks.
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/assets/nfts/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/assets/nfts/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [{
@@ -286,7 +286,7 @@ Returns NFT collections (contracts) owned by a wallet across multiple networks.
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/assets/nfts/contracts/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/assets/nfts/contracts/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [{
@@ -376,7 +376,7 @@ Returns transaction history for a wallet across networks.
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/transactions/history/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/transactions/history/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [{
@@ -451,19 +451,8 @@ curl -s -X POST "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/transactions
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy portfolio tokens --body '{"addresses":[{"address":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045","networks":["eth-mainnet","base-mainnet"]}]}' --json --no-interactive
-  alchemy portfolio token-balances --body '{"addresses":[{"address":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045","networks":["eth-mainnet"]}]}'
-  alchemy portfolio nfts --body '{"addresses":[{"address":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045","networks":["eth-mainnet"]}]}'
-  alchemy portfolio nft-contracts --body '{"addresses":[{"address":"0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045","networks":["eth-mainnet"]}]}'
-  ```
-  Note: the CLI does not (yet) wrap the Beta `transactions/history/by-address` endpoint; call it via HTTP using the `alchemy-api` API-key URL or the gateway URLs below.
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `getTokensByAddress`, `getTokenBalancesByAddress`, `getNFTsByAddress`, `getNFTContractsByAddress` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/data/v1/...` (x402) or `https://mpp.alchemy.com/data/v1/...` (MPP).
 
 ## Official Docs
 - [Portfolio APIs Overview](https://www.alchemy.com/docs/reference/portfolio-apis)

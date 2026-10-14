@@ -10,7 +10,7 @@ tags:
 related:
   - node-debug-api.md
   - data-transfers-api.md
-updated: 2026-02-23
+updated: 2026-06-17
 ---
 # Trace API
 
@@ -18,7 +18,7 @@ Trace APIs expose internal call data and state changes for transactions and bloc
 
 **Base URL**: `https://<network>.g.alchemy.com/v2/$ALCHEMY_API_KEY`
 
-**Supported chains**: Ethereum Mainnet (full support). Partial support on other networks — verify per chain.
+**Supported chains**: Ethereum Mainnet (full support). Partial support on other networks — verify per chain. Arbitrum exposes the same surface under the `arbtrace_*` namespace (see "Arbitrum Trace API" below).
 
 ---
 
@@ -35,7 +35,7 @@ Returns all traces for a mined transaction.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -108,7 +108,7 @@ Returns all traces for all transactions in a block.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -139,7 +139,7 @@ Traces a call without submitting it (like `eth_call` with trace output).
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -177,7 +177,7 @@ Returns traces matching a filter across a block range.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -198,6 +198,25 @@ Array of trace objects (same schema as `trace_transaction`).
 
 ---
 
+## Arbitrum Trace API (`arbtrace_*`)
+
+On Arbitrum One (`arb-mainnet`), the trace surface is exposed under the `arbtrace_*` namespace (same params and response shape as the standard `trace_*` methods). Use these instead of `trace_*` when querying Arbitrum — calling `trace_*` directly will fail on Arbitrum nodes.
+
+Supported on Arbitrum:
+
+| Method | Mirrors |
+|--------|---------|
+| `arbtrace_block` | `trace_block` |
+| `arbtrace_call` | `trace_call` |
+| `arbtrace_callMany` | `trace_callMany` |
+| `arbtrace_filter` | `trace_filter` |
+| `arbtrace_get` | `trace_get` |
+| `arbtrace_replayBlockTransactions` | `trace_replayBlockTransactions` |
+| `arbtrace_replayTransaction` | `trace_replayTransaction` |
+| `arbtrace_transaction` | `trace_transaction` |
+
+`arbtrace_rawTransaction` is NOT available on Alchemy's Arbitrum nodes — don't call it.
+
 ## Notes
 
 - Trace data can be very large. Use `count` and block range limits to control response size.
@@ -210,3 +229,4 @@ Array of trace objects (same schema as `trace_transaction`).
 - [trace_block](https://www.alchemy.com/docs/chains/ethereum/ethereum-api-endpoints/trace-block)
 - [trace_call](https://www.alchemy.com/docs/chains/ethereum/ethereum-api-endpoints/trace-call)
 - [trace_filter](https://www.alchemy.com/docs/chains/ethereum/ethereum-api-endpoints/trace-filter)
+- [Arbitrum API Overview](https://www.alchemy.com/docs/chains/arbitrum/arbitrum-api-overview) — lists the `arbtrace_*` methods.
