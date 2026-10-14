@@ -1,8 +1,8 @@
 ---
 name: alchemy-mcp
-description: Use the Alchemy MCP server (`https://mcp.alchemy.com/mcp`) for live blockchain data and admin work when MCP is wired into your AI client and the Alchemy CLI is NOT installed locally. Exposes 159 tools across 100+ chains for token prices, NFT metadata, transactions, simulation, tracing, account abstraction, Solana DAS, and app management. Use for live querying, analysis, admin work, or on-machine agent work — not for application code that ships to production. For application code, use the `alchemy-api` skill (with API key) or `agentic-gateway` skill (without). When the CLI is also installed locally, prefer `alchemy-cli` instead.
+description: Use the Alchemy MCP server (`https://mcp.alchemy.com/mcp`) for live blockchain data and admin work when MCP is wired into your AI client. Exposes 150+ tools across 100+ chains for token prices, NFT metadata, transactions, simulation, tracing, account abstraction, Solana DAS, and app management. Use for live querying, analysis, admin work, or on-machine agent work — not for application code that ships to production. For application code, use the `alchemy-api` skill (with an Alchemy API key).
 license: MIT
-compatibility: Requires an MCP-compatible AI client (Claude Code, Codex, Cursor, Claude Desktop, VS Code Copilot, etc.) configured against `https://mcp.alchemy.com/mcp`. OAuth flow handled by the client — no API key or local install required.
+compatibility: Requires the Alchemy MCP server connection provided by this plugin (OAuth sign-in with your Alchemy account; no API key or local install required).
 metadata:
   author: alchemyplatform
   version: "1.0"
@@ -16,19 +16,14 @@ Use the hosted Alchemy MCP server for live blockchain data, transaction simulati
 Use `alchemy-mcp` when **all** of the following are true:
 
 - The user wants **live agent work** — live querying, analysis, admin work, or on-machine automation that the agent runs now in this session
-- An MCP-compatible client (Claude Code, Codex, Cursor, Claude Desktop, VS Code Copilot, etc.) is already wired against `https://mcp.alchemy.com/mcp`, OR the user is willing to add it
-- The Alchemy CLI (`@alchemy/cli`) is **not** installed locally
-
-If the CLI is installed locally — or if both CLI and MCP are available — prefer the `alchemy-cli` skill instead. The CLI is the preferred local fallback runtime path.
+- The Alchemy MCP server (`https://mcp.alchemy.com/mcp`) is connected in this session (the Alchemy plugin provides the connection)
 
 ## When to use a different skill
 
 | Situation | Use this skill instead |
 | --- | --- |
-| `@alchemy/cli` is installed locally, or both CLI and MCP are available | `alchemy-cli` |
-| Neither CLI nor MCP is available | install `alchemy-cli` (`npm i -g @alchemy/cli`), then use `alchemy-cli` |
 | Building application code that runs outside this agent session, with an Alchemy API key | `alchemy-api` |
-| Building application code without an API key, or as an autonomous agent that needs to pay for itself, or you explicitly want x402/MPP | `agentic-gateway` |
+| Building application code and you don't have an API key yet | `alchemy-api` (copy a key from the Alchemy Dashboard, https://dashboard.alchemy.com) |
 
 Do **not** use this skill to write production application code — MCP tools are for live agent work, not for embedding into shipped software.
 
@@ -38,70 +33,14 @@ The server runs at `https://mcp.alchemy.com/mcp` and authenticates via OAuth —
 
 ### Claude Code
 
-```bash
-claude mcp add alchemy --transport http https://mcp.alchemy.com/mcp
+The fastest path is the official [Alchemy Claude Plugin](https://www.alchemy.com/docs/alchemy-claude-plugin), which bundles this MCP server, slash commands (`/alchemy:balance`, `/alchemy:nfts`, `/alchemy:portfolio`, etc.), and the `alchemy-mcp` and `alchemy-api` skills in one install:
+
+```text
+/plugin marketplace add alchemyplatform/alchemy-claude-plugin
+/plugin install alchemy@alchemy
 ```
 
-Restart Claude Code, then run `/mcp` and select `alchemy` to authenticate.
-
-### Codex
-
-```bash
-codex mcp add alchemy --url https://mcp.alchemy.com/mcp
-```
-
-Verify with `codex mcp list`.
-
-### Cursor
-
-Add to `~/.cursor/mcp.json` (global) or `.cursor/mcp.json` (project):
-
-```json
-{
-  "mcpServers": {
-    "alchemy": {
-      "type": "streamable-http",
-      "url": "https://mcp.alchemy.com/mcp"
-    }
-  }
-}
-```
-
-Restart Cursor and verify via **Cursor Settings > MCP**.
-
-### Claude Desktop
-
-Add to `~/Library/Application Support/Claude/claude_desktop_config.json` (macOS) or `%APPDATA%\Claude\claude_desktop_config.json` (Windows):
-
-```json
-{
-  "mcpServers": {
-    "alchemy": {
-      "type": "streamable-http",
-      "url": "https://mcp.alchemy.com/mcp"
-    }
-  }
-}
-```
-
-### VS Code Copilot
-
-Add to `.vscode/mcp.json` in your project:
-
-```json
-{
-  "servers": {
-    "alchemy": {
-      "type": "http",
-      "url": "https://mcp.alchemy.com/mcp"
-    }
-  }
-}
-```
-
-### Any other MCP client
-
-Point it at `https://mcp.alchemy.com/mcp` using Streamable HTTP transport. The server supports OAuth 2.1 with PKCE; the client handles the authorization flow automatically.
+Then run `/alchemy:setup` to pick an app for the session. OAuth opens automatically on the first Alchemy tool call.
 
 ## Bootstrap workflow
 
@@ -109,19 +48,19 @@ Once the server is connected and you've signed in via OAuth:
 
 1. **List apps** — `list_apps` to see your Alchemy apps.
 2. **Select an app** — `select_app` with the app ID. This caches the API key the server uses for RPC and Data tools. **Required before any RPC or Data tool call.**
-3. **Run tools** — call any of the 159 tools (e.g. `getTokenPricesBySymbol`, `getNFTsForOwner`, `simulateAssetChanges`, `solana_getBalance`).
+3. **Run tools** — call any of the 150+ tools (e.g. `getTokenPricesBySymbol`, `getNFTsForOwner`, `simulateAssetChanges`, `solana_getBalance`).
 
 If you need to create an app first:
 
 ```text
-create_app(name="My App", networks=["eth-mainnet", "base-mainnet"])
+create_app(name="My App", chain_networks=["eth-mainnet", "base-mainnet"])
 ```
 
 Then `select_app` against the new app.
 
 ## Tool catalog
 
-The server exposes **159 tools** across three categories.
+The server exposes **150+ tools** across three categories.
 
 ### Admin (8 tools) — Account & app management
 
@@ -136,7 +75,7 @@ The server exposes **159 tools** across three categories.
 | `list_chains` | List all 100+ supported networks |
 | `update_allowlist` | Update app allowlists (network, address, origin, IP) |
 
-### RPC (123 tools) — On-chain JSON-RPC
+### RPC (120 tools) — On-chain JSON-RPC
 
 Standard EVM RPC, Token API, Transfers & Receipts, Transaction Simulation, Trace API, Debug API, ERC-4337 Account Abstraction, Solana standard RPC, and Solana Enhanced & DAS.
 
@@ -148,15 +87,15 @@ Standard EVM RPC, Token API, Transfers & Receipts, Transaction Simulation, Trace
 | Transaction Simulation | 5 | `simulateAssetChanges`, `simulateExecution`, `simulateUserOperationAssetChanges` |
 | Trace API | 6 | `traceCall`, `traceTransaction`, `traceBlock`, `traceFilter` |
 | Debug API | 6 | `debugTraceTransaction`, `debugTraceCall`, `debugTraceBlockByNumber` |
-| ERC-4337 Account Abstraction | 7 | `estimateUserOperationGas`, `getUserOperationReceipt`, `requestGasAndPaymasterAndData` |
-| Solana Standard RPC | 50 | `solana_getBalance`, `solana_getTokenAccountsByOwner`, `solana_getBlock`, `solana_simulateTransaction` |
+| ERC-4337 Account Abstraction | 5 | `estimateUserOperationGas`, `getUserOperationReceipt`, `getUserOperationByHash` |
+| Solana Standard RPC | 49 | `solana_getBalance`, `solana_getTokenAccountsByOwner`, `solana_getBlock`, `solana_simulateTransaction` |
 | Solana Enhanced & DAS | 13 | `solana_getAsset`, `solana_getAssetsByOwner`, `solana_searchAssets`, `solana_getPriorityFeeEstimate` |
 
 ### Data (28 tools) — REST APIs
 
 | Cluster | Count | Examples |
 |---------|-------|----------|
-| NFT API | 21 | `getNFTsForOwner`, `getNFTMetadata`, `getOwnersForNFT`, `getFloorPrice`, `getNFTSales` |
+| NFT API | 21 | `getNFTsForOwner`, `getNFTMetadata`, `getOwnersForNFT`, `getFloorPrice`, `getNFTsForContract` |
 | Prices API | 3 | `getTokenPricesBySymbol`, `getTokenPricesByAddress`, `getHistoricalTokenPrices` |
 | Portfolio (multi-chain) | 4 | `getTokensByAddress`, `getTokenBalancesByAddress`, `getNFTsByAddress`, `getNFTContractsByAddress` |
 
@@ -191,7 +130,7 @@ Standard EVM RPC, Token API, Transfers & Receipts, Transaction Simulation, Trace
 - **Always call `select_app` first** before any RPC or Data tool. Tools error out with a clear message if no app is selected.
 - **Use the canonical chain slugs** returned by `list_chains` (e.g. `eth-mainnet`, `base-mainnet`, `solana-mainnet`). Tool error messages will guide you if you guess wrong.
 - **Don't bypass the MCP server** with raw curl/HTTP from inside the agent — that's the API-key path covered by `alchemy-api`. MCP tools are the canonical interface for this skill.
-- **Don't use MCP tools to generate production application code.** When the user wants to ship code, hand off to `alchemy-api` (with API key) or `agentic-gateway` (without).
+- **Don't use MCP tools to generate production application code.** When the user wants to ship code, hand off to `alchemy-api` (copy your API key from the Alchemy Dashboard).
 
 ## Supported chains
 

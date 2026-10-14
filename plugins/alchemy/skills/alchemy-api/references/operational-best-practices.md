@@ -9,7 +9,6 @@ tags:
 related:
   - operational-auth-and-keys.md
   - operational-rate-limits-and-compute-units.md
-  - operational-request-logs.md
 updated: 2026-02-05
 ---
 # Production Best Practices
@@ -28,7 +27,6 @@ Operational checklist for deploying Alchemy-backed services.
 ## Related Files
 - `operational-auth-and-keys.md`
 - `operational-rate-limits-and-compute-units.md`
-- `operational-request-logs.md`
 
 ## Official Docs
 - [Allowlists for Apps](https://www.alchemy.com/docs/how-to-add-allowlists-to-your-apps-for-enhanced-security)

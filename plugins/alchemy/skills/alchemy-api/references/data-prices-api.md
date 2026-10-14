@@ -31,7 +31,7 @@ Get current prices by token symbol.
 ### Request
 
 ```bash
-curl -s "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/by-symbol?symbols=ETH&symbols=BTC"
+curl -s "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/by-symbol?symbols=ETH&symbols=BTC"
 ```
 
 ### Response
@@ -88,7 +88,7 @@ Get current prices by contract address. Must be POST with JSON body.
 ### Request
 
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/by-address" \
+curl -s -X POST "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/by-address" \
   -H "Content-Type: application/json" \
   -d '{
     "addresses": [
@@ -147,7 +147,7 @@ Get historical token prices with configurable intervals. Must be POST with JSON 
 
 ```bash
 # Using ISO 8601 strings
-curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/historical" \
+curl -s -X POST "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/historical" \
   -H "Content-Type: application/json" \
   -d '{
     "symbol": "ETH",
@@ -158,7 +158,7 @@ curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/his
   }'
 
 # Using Unix timestamps (must be JSON numbers, not strings)
-curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/historical" \
+curl -s -X POST "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/historical" \
   -H "Content-Type: application/json" \
   -d '{
     "symbol": "ETH",
@@ -216,17 +216,8 @@ curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/his
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy prices symbol ETH,USDC --json --no-interactive
-  alchemy prices address --addresses '[{"network":"eth-mainnet","address":"0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48"}]'
-  alchemy prices historical --body '{"symbol":"ETH","startTime":"2025-01-01T00:00:00Z","endTime":"2025-01-07T00:00:00Z","interval":"1h"}'
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `getTokenPricesBySymbol`, `getTokenPricesByAddress`, `getHistoricalTokenPrices` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/prices/v1/...` (x402) or `https://mpp.alchemy.com/prices/v1/...` (MPP).
 
 ## Official Docs
 - [Prices API Quickstart](https://www.alchemy.com/docs/reference/prices-api-quickstart)

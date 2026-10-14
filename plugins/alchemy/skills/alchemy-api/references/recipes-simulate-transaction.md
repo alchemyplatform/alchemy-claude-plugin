@@ -27,7 +27,7 @@ Simulate a transaction to preview asset changes and detect failures before sendi
 
 ## Example (curl)
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_simulateAssetChanges","params":[{"from":"0x00000000219ab540356cbb839cbe05303d7705fa","to":"0xA0b86991c6218b36c1d19d4a2e9eb0ce3606eb48","data":"0x"},"latest"]}'
 ```

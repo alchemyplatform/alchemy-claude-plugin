@@ -26,8 +26,7 @@ High-throughput Solana event streaming. Use when you need near real-time block, 
 
 ## Cross-References
 - `solana` skill for standard Solana JSON-RPC and DAS APIs.
-- `alchemy-cli` skill for live agent work (preferred local fallback).
-- `alchemy-mcp` skill for live agent work (when CLI is not installed).
+- `alchemy-mcp` skill for live agent work.
 
 ## Official Docs
 - [Yellowstone gRPC Overview](https://www.alchemy.com/docs/reference/yellowstone-grpc-overview)

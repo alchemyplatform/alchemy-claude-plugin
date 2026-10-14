@@ -1,7 +1,7 @@
 ---
 id: references/node-json-rpc.md
 name: 'JSON-RPC (EVM)'
-description: 'Use Alchemy''s EVM JSON-RPC endpoints for standard blockchain reads and writes (e.g., `eth_call`, `eth_getLogs`, `eth_sendRawTransaction`). This is the baseline for any EVM integration.'
+description: 'Use Alchemy''s EVM JSON-RPC endpoints for standard blockchain reads and writes (e.g., `eth_call`, `eth_getLogs`). This is the baseline for any EVM integration.'
 tags:
   - alchemy
   - node-apis
@@ -12,7 +12,7 @@ related:
   - node-enhanced-apis.md
   - data-transfers-api.md
   - operational-rate-limits-and-compute-units.md
-updated: 2026-02-23
+updated: 2026-06-24
 ---
 # JSON-RPC (EVM)
 
@@ -36,7 +36,7 @@ None.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}'
 ```
@@ -65,7 +65,7 @@ Returns the native token balance (ETH, MATIC, etc.) for an address.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -103,7 +103,7 @@ Executes a read-only call against a contract (no state changes, no gas cost).
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -146,7 +146,7 @@ Returns event logs matching a filter.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -216,7 +216,7 @@ Returns the receipt of a mined transaction.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -261,7 +261,7 @@ Returns block data by block number.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -287,39 +287,6 @@ curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
 
 ---
 
-## `eth_sendRawTransaction`
-
-Submits a signed transaction to the network.
-
-### Parameters
-
-| Parameter | Type | Required | Description |
-|-----------|------|----------|-------------|
-| `signedTransaction` | string | Yes | Signed transaction data (hex) |
-
-### Request
-
-```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
-  -H "Content-Type: application/json" \
-  -d '{
-    "jsonrpc": "2.0",
-    "id": 1,
-    "method": "eth_sendRawTransaction",
-    "params": ["0xf86c...signed_tx_hex..."]
-  }'
-```
-
-### Response
-
-```json
-{ "jsonrpc": "2.0", "id": 1, "result": "0x3847245c01829b...transaction_hash..." }
-```
-
-Result is the transaction hash. Use `eth_getTransactionReceipt` to check if it was mined.
-
----
-
 ## Other Common Methods
 
 | Method | Description |
@@ -342,6 +309,7 @@ Result is the transaction hash. Use `eth_getTransactionReceipt` to check if it w
 - All quantities are hex-encoded strings (e.g., `"0x10"` = 16).
 - Block tags: `"latest"` (most recent), `"finalized"` (finalized by consensus), `"safe"` (safe head), `"earliest"` (genesis), `"pending"` (pending state).
 - `eth_getLogs` over large block ranges can be expensive. Chunk requests and use narrow ranges.
+- `eth_getLogs` block-range limits are per-chain and per-plan. High-volume EVM chains (Ethereum, Base, Optimism, Arbitrum, Polygon, Worldchain, BNB, HyperEVM Mainnet, Monad Mainnet, Tempo Mainnet, Sei Mainnet) are unlimited on PAYG / Enterprise and capped at 10 blocks on Free. Berachain and "All Other Chains" cap at 1,000–10,000 on PAYG and 10,000 on Enterprise (Enterprise can request larger ranges via support). Monad Testnet is 1,000 on paid tiers. Treat the live [`eth_getLogs` reference page](https://www.alchemy.com/docs/chains/ethereum/ethereum-api-endpoints/eth-get-logs) as authoritative — the per-chain matrix moves.
 - Handle HTTP `429` (rate limit) with exponential backoff.
 - Handle JSON-RPC errors in the response body (`error.code`, `error.message`).
 
@@ -349,18 +317,8 @@ Result is the transaction hash. Use `eth_getTransactionReceipt` to check if it w
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy balance 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --json --no-interactive
-  alchemy block latest
-  alchemy gas
-  alchemy rpc eth_getTransactionReceipt 0x3847245c01829b...
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `ethBlockNumber`, `ethGetBalance`, `ethCall`, `ethGetLogs`, `ethGetTransactionReceipt`, `ethGetBlockByNumber` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/{chainNetwork}/v2` (x402) or `https://mpp.alchemy.com/{chainNetwork}/v2` (MPP).
 
 ## Official Docs
 - [Chain APIs Overview](https://www.alchemy.com/docs/reference/chain-apis-overview)

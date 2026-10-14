@@ -26,7 +26,7 @@ Fetch historical transfers for a wallet or contract.
 
 ## Example (curl)
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_getAssetTransfers","params":[{"fromBlock":"0x0","toBlock":"latest","fromAddress":"0x00000000219ab540356cbb839cbe05303d7705fa","category":["erc20","erc721","erc1155"],"withMetadata":true,"maxCount":"0x3e8"}]}'
 ```
