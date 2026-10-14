@@ -138,12 +138,15 @@ fi
 # renames where $DEST does not exist. If anything fails from here until the
 # commit point below, the cleanup trap restores the previous skills directory
 # from the backup and the previous lock content.
-SWAPPING=1
+# Enter swap mode only after the backup rename has succeeded, so a failed
+# rename never makes the cleanup trap delete the original tree.
 if [ -e "$DEST" ]; then
-  BACKUP="$PLUGIN_DIR/.skills-backup.$$"
-  rm -rf "$BACKUP"
-  mv "$DEST" "$BACKUP"
+  BACKUP_CANDIDATE="$PLUGIN_DIR/.skills-backup.$$"
+  rm -rf "$BACKUP_CANDIDATE"
+  mv "$DEST" "$BACKUP_CANDIDATE"
+  BACKUP="$BACKUP_CANDIDATE"
 fi
+SWAPPING=1
 mv "$STAGING" "$DEST"
 STAGING=""
 if [ "$UPDATE" -eq 1 ]; then
