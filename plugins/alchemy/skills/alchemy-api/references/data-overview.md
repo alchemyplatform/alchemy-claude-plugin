@@ -25,7 +25,7 @@ Higher-level APIs for asset discovery, wallet analytics, transfer history, and p
 
 ## How to Use This Skill
 - Prefer these APIs when you want asset analytics or historical data without maintaining a custom indexer.
-- If you need real-time updates, pair with the `webhooks` skill.
+- If you need real-time updates, pair with `references/webhooks-overview.md`.
 
 ## Other ways to access this API
 
@@ -34,8 +34,8 @@ This file is part of the `alchemy-api` skill — for app code that ships with an
 - **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first; tool names follow the API surface (e.g., `getTokenBalances`, `getNFTsForOwner`, `getTokenPricesBySymbol`, `getTokensByAddress`, `simulateAssetChanges`, `getAssetTransfers`). See per-surface reference files for the full tool list.
 
 ## Cross-References
-- `node-apis` skill → `node-enhanced-apis.md` for related RPC-style endpoints.
-- `recipes` skill for end-to-end workflows.
+- `references/node-enhanced-apis.md` for related RPC-style endpoints.
+- `references/recipes-overview.md` for end-to-end workflows.
 - `alchemy-mcp` skill for live agent work via the hosted MCP server.
 
 ## Official Docs

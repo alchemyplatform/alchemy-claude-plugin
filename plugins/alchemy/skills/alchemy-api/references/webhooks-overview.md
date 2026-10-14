@@ -24,8 +24,8 @@ Push-based delivery of blockchain events. Use this instead of polling where poss
 7. [webhooks-custom-webhooks.md](webhooks-custom-webhooks.md) - Custom webhook setup and filters.
 
 ## Cross-References
-- `data-apis` skill → `data-transfers-api.md` for historical data when a webhook is missed.
-- `operational` skill → `operational-auth-and-keys.md` for security best practices.
+- `references/data-transfers-api.md` for historical data when a webhook is missed.
+- `references/operational-auth-and-keys.md` for security best practices.
 
 ## Official Docs
 - [Notify API Quickstart](https://www.alchemy.com/docs/reference/notify-api-quickstart)

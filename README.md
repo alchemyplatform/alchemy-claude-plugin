@@ -80,15 +80,20 @@ update the override. After the operations it also:
   fails on any hit that is not covered by an exact `(file, snippet, count)` allow
   entry;
 - checks that every Markdown link, backtick `.md` path, and YAML `related:` entry
-  resolves to a file in the vendored tree;
+  resolves to a file in the vendored tree, and that every `` `name` skill ``
+  handoff names a bundled skill;
+- rejects any symlink (file or directory) in the skills or commands tree;
 - counts the lines that match the review patterns (for example `wallet` or
   `transfer`) for a human to read; pass `--verbose` to
   `scripts/claude_overrides.py` to list every hit.
 
 Only after all of that passes is `plugins/alchemy/skills` replaced: the current
 directory is renamed to a sibling backup, the staging directory is renamed into
-place, and the backup is deleted, or restored if anything fails. This is not an
-atomic swap. The pinned SHA is also written to `plugins/alchemy/skills/.source-commit`.
+place, and, with `--update`, the new lock is published by renaming a temp file.
+Only then is the backup deleted. If anything fails before that point, both the
+previous skills directory and the previous lock content are restored. This is not
+an atomic swap. The pinned SHA is also written to
+`plugins/alchemy/skills/.source-commit`.
 The same pinned SHA always produces byte-identical output, and running
 `claude_overrides.py` on a tree that already contains `.claude-overrides-applied`
 is refused.

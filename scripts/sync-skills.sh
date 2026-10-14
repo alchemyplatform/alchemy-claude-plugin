@@ -38,16 +38,39 @@ esac
 TMP="$(mktemp -d)"
 STAGING=""
 BACKUP=""
+SWAPPING=0
+LOCK_NEW=""
+LOCK_PREV="$TMP/skills-source.lock.prev"
+LOCK_HAD=0
+LOCK_TOUCHED=0
 
+# On failure after the swap has started, put back both the previous skills
+# directory and the previous lock file.
 cleanup() {
   status=$?
   trap - EXIT
-  if [ "$status" -ne 0 ] && [ -n "$BACKUP" ] && [ -e "$BACKUP" ]; then
-    rm -rf "$DEST"
-    mv "$BACKUP" "$DEST"
-    echo "Restored the previous $DEST" >&2
+  if [ "$status" -ne 0 ]; then
+    if [ "$SWAPPING" -eq 1 ]; then
+      rm -rf "$DEST"
+      if [ -n "$BACKUP" ] && [ -e "$BACKUP" ]; then
+        mv "$BACKUP" "$DEST"
+        echo "Restored the previous $DEST" >&2
+      else
+        echo "Removed the incomplete $DEST" >&2
+      fi
+    fi
+    if [ "$LOCK_TOUCHED" -eq 1 ]; then
+      if [ "$LOCK_HAD" -eq 1 ]; then
+        cp "$LOCK_PREV" "$LOCK.restore.$$"
+        mv "$LOCK.restore.$$" "$LOCK"
+      else
+        rm -f "$LOCK"
+      fi
+      echo "Restored the previous $LOCK" >&2
+    fi
   fi
   [ -z "$STAGING" ] || rm -rf "$STAGING"
+  [ -z "$LOCK_NEW" ] || rm -f "$LOCK_NEW"
   rm -rf "$TMP"
   exit "$status"
 }
@@ -81,25 +104,41 @@ chmod 755 "$STAGING"
 
 echo "Staging skills from $SHA ..."
 for skill in "${SKILLS[@]}"; do
-  if [ ! -d "$CLONE/skills/$skill" ]; then
-    echo "error: skill missing in source: $skill" >&2
+  if [ ! -d "$CLONE/skills/$skill" ] || [ -L "$CLONE/skills/$skill" ]; then
+    echo "error: skill missing in source (or a symlink): $skill" >&2
     exit 1
   fi
-  cp -R "$CLONE/skills/$skill" "$STAGING/"
+  cp -RP "$CLONE/skills/$skill" "$STAGING/"
   echo "  + $skill"
 done
+
+if [ -n "$(find "$STAGING" -type l -print)" ]; then
+  echo "error: symlinks are not allowed in the vendored skills:" >&2
+  find "$STAGING" -type l -print >&2
+  exit 1
+fi
 
 echo "Applying Claude Code overrides ..."
 python3 "$ROOT/scripts/claude_overrides.py" "$STAGING"
 
 printf '%s\n' "$SHA" > "$STAGING/.source-commit"
 if [ "$UPDATE" -eq 1 ]; then
-  printf '%s\n' "$SHA" > "$TMP/skills-source.lock"
+  # The new lock is written next to the real one so publishing it is a rename.
+  LOCK_NEW="$(mktemp "$LOCK.XXXXXX")"
+  chmod 644 "$LOCK_NEW"
+  printf '%s\n' "$SHA" > "$LOCK_NEW"
+  if [ -e "$LOCK" ]; then
+    cp "$LOCK" "$LOCK_PREV"
+    LOCK_HAD=1
+  fi
 fi
 
-# Swap in the validated tree. This is not atomic: there is a brief window
-# between the two renames where $DEST does not exist. If the second rename
-# fails, the cleanup trap restores the previous directory from the backup.
+# Publish the validated tree (.source-commit is inside it) and, with --update,
+# the new lock. This is not atomic: there is a brief window between the two
+# renames where $DEST does not exist. If anything fails from here until the
+# commit point below, the cleanup trap restores the previous skills directory
+# from the backup and the previous lock content.
+SWAPPING=1
 if [ -e "$DEST" ]; then
   BACKUP="$PLUGIN_DIR/.skills-backup.$$"
   rm -rf "$BACKUP"
@@ -107,14 +146,22 @@ if [ -e "$DEST" ]; then
 fi
 mv "$STAGING" "$DEST"
 STAGING=""
-if [ -n "$BACKUP" ]; then
-  OLD="$BACKUP"
-  BACKUP=""
+if [ "$UPDATE" -eq 1 ]; then
+  LOCK_TOUCHED=1
+  mv "$LOCK_NEW" "$LOCK"
+  LOCK_NEW=""
+fi
+
+# Commit point: the swap and the lock are both published, so drop the backup.
+OLD="$BACKUP"
+BACKUP=""
+SWAPPING=0
+LOCK_TOUCHED=0
+if [ -n "$OLD" ]; then
   rm -rf "$OLD"
 fi
 
 if [ "$UPDATE" -eq 1 ]; then
-  mv "$TMP/skills-source.lock" "$LOCK"
   echo "Pinned source commit updated: $SHA"
 fi
 

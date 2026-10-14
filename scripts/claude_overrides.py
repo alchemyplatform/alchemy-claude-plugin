@@ -257,7 +257,16 @@ OPERATIONS = [
     replace(
         f"{MCP}/SKILL.md",
         "The server exposes **159 tools** across three categories.",
-        "The server exposes **150+ tools** across three categories.",
+        "The server exposes **171 tools** in this plugin's profile. This is a selected "
+        "catalog: the Admin list below shows 8 of the 23 admin tools and omits the team, "
+        "webhook, Gas Manager policy, usage, and feedback tools, and the RPC and Data "
+        "tables show example tools per cluster.",
+        1,
+    ),
+    replace(
+        f"{MCP}/SKILL.md",
+        "### Admin (8 tools)",
+        "### Admin (8 selected of 23 tools)",
         1,
     ),
     replace(f"{MCP}/SKILL.md", "### RPC (123 tools)", "### RPC (120 tools)", 1),
@@ -435,6 +444,82 @@ OPERATIONS += [
     ),
     remove_lines(f"{REF}/sui-grpc-objects-and-ledger.md", "sui-grpc-transactions.md", 2),
     remove_lines(f"{REF}/webhooks-overview.md", "- `alchemy-cli` skill for live webhook management", 1),
+    # -- Handoffs to skills that are not bundled: point at the bundled reference --
+    replace(
+        f"{REF}/data-overview.md",
+        "pair with the `webhooks` skill.",
+        "pair with `references/webhooks-overview.md`.",
+        1,
+    ),
+    replace(
+        f"{REF}/data-overview.md",
+        "- `node-apis` skill → `node-enhanced-apis.md` for related RPC-style endpoints.",
+        "- `references/node-enhanced-apis.md` for related RPC-style endpoints.",
+        1,
+    ),
+    replace(
+        f"{REF}/data-overview.md",
+        "- `recipes` skill for end-to-end workflows.",
+        "- `references/recipes-overview.md` for end-to-end workflows.",
+        1,
+    ),
+    replace(
+        f"{REF}/node-overview.md",
+        "- `data-apis` skill for higher-level asset analytics.",
+        "- `references/data-overview.md` for higher-level asset analytics.",
+        1,
+    ),
+    replace(
+        f"{REF}/node-overview.md",
+        "- `webhooks` skill for event-driven flows.",
+        "- `references/webhooks-overview.md` for event-driven flows.",
+        1,
+    ),
+    replace(
+        f"{REF}/node-overview.md",
+        "- `operational` skill for auth, limits, and reliability.",
+        "- `references/operational-auth-and-keys.md`, "
+        "`references/operational-rate-limits-and-compute-units.md`, and "
+        "`references/operational-best-practices.md` for auth, limits, and reliability.",
+        1,
+    ),
+    replace(
+        f"{REF}/solana-grpc-overview.md",
+        "- `solana` skill for standard Solana JSON-RPC and DAS APIs.",
+        "- `references/solana-overview.md` for standard Solana JSON-RPC and DAS APIs.",
+        1,
+    ),
+    replace(
+        f"{REF}/webhooks-overview.md",
+        "- `data-apis` skill → `data-transfers-api.md` for historical data when a webhook is missed.",
+        "- `references/data-transfers-api.md` for historical data when a webhook is missed.",
+        1,
+    ),
+    replace(
+        f"{REF}/webhooks-overview.md",
+        "- `operational` skill → `operational-auth-and-keys.md` for security best practices.",
+        "- `references/operational-auth-and-keys.md` for security best practices.",
+        1,
+    ),
+    replace(
+        f"{REF}/solana-overview.md",
+        "- `yellowstone-grpc` skill for high-throughput streaming (accounts/transactions/blocks).",
+        "- `references/solana-grpc-overview.md` for high-throughput streaming "
+        "(accounts/transactions/blocks).",
+        1,
+    ),
+    replace(
+        f"{REF}/solana-overview.md",
+        "- `data-apis` skill for EVM assets.",
+        "- `references/data-overview.md` for EVM assets.",
+        1,
+    ),
+    replace(
+        f"{REF}/solana-overview.md",
+        "see the yellowstone-grpc skill.",
+        "see `references/solana-grpc-overview.md`.",
+        1,
+    ),
     # -- Signing / broadcast content in retained files ---------------------------
     remove_section(f"{REF}/node-json-rpc.md", "## `eth_sendRawTransaction`"),
     replace(f"{REF}/node-json-rpc.md", ", `eth_sendRawTransaction`)", ")", 1),
@@ -541,6 +626,12 @@ OPERATIONS += [
     ),
     replace(SKILL_MAP, ", `eth_sendRawTransaction`)", ")", 1),
     replace(SKILL_MAP, SOLANA_WALLET_DESC_OLD, SOLANA_WALLET_DESC_NEW, 1),
+    replace(
+        SKILL_MAP,
+        "see the yellowstone-grpc skill",
+        "see `references/solana-grpc-overview.md`",
+        1,
+    ),
     remove_lines(SKILL_MAP, "| `references/solana-wallets.md` |", 1),
     remove_lines(SKILL_MAP, "| `references/sui-grpc-transactions.md` |", 1),
     remove_section(SKILL_MAP, "## Wallets"),
@@ -659,6 +750,7 @@ def scan(texts):
 
 LINK_RE = re.compile(r"\]\(([^)\s]+)\)")
 TICK_RE = re.compile(r"`([^`\s]+\.md)`")
+SKILL_REF_RE = re.compile(r"`([^`\s]+)` skills?\b")
 
 
 def slugify(heading):
@@ -687,6 +779,7 @@ def resolve(files, source, ref):
 
 def check_references(files):
     problems = []
+    bundled = {p.split("/")[0] for p in files if p.count("/") == 1 and p.endswith("/SKILL.md")}
     for path in sorted(files):
         if not path.endswith(".md"):
             continue
@@ -712,6 +805,9 @@ def check_references(files):
                 target = match.group(1)
                 if "://" not in target and not resolve(files, path, target):
                     problems.append(f"{path}:{number}: broken path `{target}`")
+            for match in SKILL_REF_RE.finditer(line):
+                if match.group(1) not in bundled:
+                    problems.append(f"{path}:{number}: `{match.group(1)}` skill is not bundled")
         if end is not None:
             in_related = False
             for number in range(2, end + 1):
@@ -815,17 +911,32 @@ def item_end(lines, start):
 # ---------------------------------------------------------------------------
 
 
+def reject_symlinks(root, label):
+    """Fail on a symlinked root or any symlink, file or directory, under it.
+
+    os.walk lists directory symlinks in dirnames without descending into them,
+    so a linked directory would otherwise escape both the scan and the checks.
+    """
+    if os.path.islink(root.rstrip(os.sep) or root):
+        raise OverrideError(f"{label} root {root} is a symlink")
+    for dirpath, dirnames, filenames in os.walk(root):
+        for name in sorted(dirnames) + sorted(filenames):
+            full = os.path.join(dirpath, name)
+            if os.path.islink(full):
+                rel = os.path.relpath(full, root).replace(os.sep, "/")
+                raise OverrideError(f"{label}/{rel}: symlink in input")
+
+
 class Tree:
     def __init__(self, root):
         self.root = root
         self.files = {}
+        reject_symlinks(root, "skills")
         for dirpath, dirnames, filenames in os.walk(root):
             dirnames.sort()
             for name in sorted(filenames):
                 full = os.path.join(dirpath, name)
                 rel = os.path.relpath(full, root).replace(os.sep, "/")
-                if os.path.islink(full):
-                    raise OverrideError(f"{rel}: symlink in input")
                 with open(full, "rb") as handle:
                     data = handle.read()
                 try:
@@ -991,6 +1102,7 @@ def read_commands(commands_dir):
     texts = {}
     if not commands_dir or not os.path.isdir(commands_dir):
         return texts
+    reject_symlinks(commands_dir, "commands")
     for dirpath, dirnames, filenames in os.walk(commands_dir):
         dirnames.sort()
         for name in sorted(filenames):
@@ -1055,7 +1167,11 @@ def main(argv):
     print(f"Applied {len(OPERATIONS)} operations across {len(per_file)} paths.")
 
     scanned = dict(tree.files)
-    scanned.update(read_commands(args.commands))
+    try:
+        scanned.update(read_commands(args.commands))
+    except OverrideError as error:
+        print(f"error: {error}", file=sys.stderr)
+        return 1
     failures, review, allow_errors = scan(scanned)
     problems = check_references(tree.files)
 

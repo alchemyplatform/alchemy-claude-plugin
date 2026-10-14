@@ -44,7 +44,7 @@ Complete index of all reference files organized by product area. Use the Endpoin
 ## Solana
 | File | Name | Short Description |
 | --- | --- | --- |
-| `references/solana-overview.md` | solana | Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets. Use when building Solana applications that need RPC access or NFT/asset queries. For high-throughput streaming, see the yellowstone-grpc skill |
+| `references/solana-overview.md` | solana | Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets. Use when building Solana applications that need RPC access or NFT/asset queries. For high-throughput streaming, see `references/solana-grpc-overview.md` |
 | `references/solana-das-api.md` | Solana DAS (Digital Asset Standard) API | DAS provides normalized access to Solana NFT and compressed asset data |
 | `references/solana-grpc-best-practices.md` | Yellowstone Best Practices | Practical guidance to keep Yellowstone consumers reliable and efficient |
 | `references/solana-grpc-details.md` | Yellowstone gRPC Overview | Yellowstone gRPC provides high-throughput Solana data streams for blocks, transactions, accounts, and slots. Use this for real-time indexing at scale |

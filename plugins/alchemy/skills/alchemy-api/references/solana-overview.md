@@ -1,7 +1,7 @@
 ---
 id: references/solana-overview.md
 name: solana
-description: Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets. Use when building Solana applications that need RPC access or NFT/asset queries. For high-throughput streaming, see the yellowstone-grpc skill.
+description: Solana-specific APIs including standard JSON-RPC, Digital Asset Standard (DAS) for NFTs and compressed assets. Use when building Solana applications that need RPC access or NFT/asset queries. For high-throughput streaming, see `references/solana-grpc-overview.md`.
 tags: []
 related: []
 updated: 2026-05-06
@@ -20,8 +20,8 @@ Solana-specific APIs and streaming endpoints, including DAS (Digital Asset Stand
 3. [solana-websocket-subscriptions.md](solana-websocket-subscriptions.md) - PubSub WebSocket subscriptions (`accountSubscribe`, `programSubscribe`, `logsSubscribe`, etc.).
 
 ## Cross-References
-- `yellowstone-grpc` skill for high-throughput streaming (accounts/transactions/blocks).
-- `data-apis` skill for EVM assets.
+- `references/solana-grpc-overview.md` for high-throughput streaming (accounts/transactions/blocks).
+- `references/data-overview.md` for EVM assets.
 - `alchemy-mcp` skill for live agent work via the hosted MCP server. Exposes 50+ Solana RPC tools and DAS tools.
 
 ## Official Docs

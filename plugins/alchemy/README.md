@@ -39,8 +39,9 @@ in your Alchemy account. They do not sign or broadcast transactions or move fund
 
 1. Install the plugin and authenticate with Alchemy (OAuth) when prompted. If the
    browser does not open, run `/mcp` and select `alchemy`.
-2. Run `/alchemy:setup` to list your apps and select one. This caches the app's
-   API key for the rest of the session — required before most data tools.
+2. Run `/alchemy:setup` to list your apps and select one; most data tools need a
+   selected app. The server caches that app's API key on Alchemy's side for later
+   requests (up to 90 days, cleared if your sign-in becomes invalid).
 
 If you already added `https://mcp.alchemy.com/mcp` to Claude Code by hand, remove
 that entry with `claude mcp remove alchemy` so the plugin's entry and its
@@ -84,8 +85,10 @@ application code: `alchemy-mcp` and `alchemy-api`.
 This plugin connects to Alchemy's hosted MCP server and APIs. Alchemy's data
 collection, usage, retention, and sharing practices are described in the Alchemy
 Privacy Policy: https://www.alchemy.com/policies/privacy-policy. The plugin itself
-stores no data locally beyond what Claude Code persists for the connection; API
-keys for a selected app are cached server-side for the session.
+stores no data locally beyond what Claude Code persists for the connection.
+`/alchemy:setup` selects an app; the server caches that app's API key on Alchemy's
+side for later requests (up to 90 days, cleared if your sign-in becomes invalid).
+A selected team is cached the same way.
 
 ## Support
 

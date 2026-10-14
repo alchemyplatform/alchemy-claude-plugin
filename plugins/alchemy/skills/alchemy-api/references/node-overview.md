@@ -43,9 +43,9 @@ This file is part of the `alchemy-api` skill — for app code that ships with an
   `ethBlockNumber`, `ethGetBalance`, `ethGetTransactionByHash`, `ethGetBlockByNumber`, `ethGasPrice`, `ethGetLogs` (full list in the `alchemy-mcp` skill catalog).
 
 ## Cross-References
-- `data-apis` skill for higher-level asset analytics.
-- `webhooks` skill for event-driven flows.
-- `operational` skill for auth, limits, and reliability.
+- `references/data-overview.md` for higher-level asset analytics.
+- `references/webhooks-overview.md` for event-driven flows.
+- `references/operational-auth-and-keys.md`, `references/operational-rate-limits-and-compute-units.md`, and `references/operational-best-practices.md` for auth, limits, and reliability.
 - `alchemy-mcp` skill for live agent work via the hosted MCP server.
 
 ## Official Docs

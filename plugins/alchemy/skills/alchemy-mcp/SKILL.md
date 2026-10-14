@@ -60,9 +60,9 @@ Then `select_app` against the new app.
 
 ## Tool catalog
 
-The server exposes **150+ tools** across three categories.
+The server exposes **171 tools** in this plugin's profile. This is a selected catalog: the Admin list below shows 8 of the 23 admin tools and omits the team, webhook, Gas Manager policy, usage, and feedback tools, and the RPC and Data tables show example tools per cluster.
 
-### Admin (8 tools) — Account & app management
+### Admin (8 selected of 23 tools) — Account & app management
 
 | Tool | Purpose |
 |------|---------|

@@ -25,7 +25,7 @@ High-throughput Solana event streaming. Use when you need near real-time block, 
 8. [solana-grpc-examples.md](solana-grpc-examples.md) - Minimal usage examples.
 
 ## Cross-References
-- `solana` skill for standard Solana JSON-RPC and DAS APIs.
+- `references/solana-overview.md` for standard Solana JSON-RPC and DAS APIs.
 - `alchemy-mcp` skill for live agent work.
 
 ## Official Docs
