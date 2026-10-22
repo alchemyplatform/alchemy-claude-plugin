@@ -18,9 +18,16 @@ This repository is a **plugin marketplace**. It contains a single plugin, `alche
 On first use you'll be prompted to authenticate with Alchemy via OAuth. After
 connecting, run `/alchemy:setup` to pick which Alchemy app to use.
 
+### Upgrading from 0.1.x
+
+Version 0.2.0 no longer bundles the `alchemy-cli` and `agentic-gateway` skills.
+If you used them, install them from
+[`alchemyplatform/skills`](https://github.com/alchemyplatform/skills) with
+`npx skills add alchemyplatform/skills`.
+
 ## What you get
 
-- **150+ MCP tools** from the hosted Alchemy MCP server (`mcp.alchemy.com`):
+- **170+ MCP tools** from the hosted Alchemy MCP server (`mcp.alchemy.com`):
   EVM JSON-RPC, Token/NFT/Prices/Portfolio APIs, transaction simulation & tracing,
   and Solana (RPC + Digital Asset Standard).
 - **Slash commands** for common workflows:
