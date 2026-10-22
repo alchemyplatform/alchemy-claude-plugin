@@ -1,0 +1,11 @@
+{
+  "mcpServers": {
+    "alchemy": {
+      "type": "http",
+      "url": "https://mcp.alchemy.com/mcp",
+      "headers": {
+        "x-alchemy-source": "cursor-marketplace"
+      }
+    }
+  }
+}

@@ -5,7 +5,7 @@ A [Claude Code](https://code.claude.com/) plugin that connects Claude to
 manage your Alchemy apps directly from your agent, backed by the hosted
 [Alchemy MCP server](https://mcp.alchemy.com/mcp).
 
-This repository is a **plugin marketplace**. It contains a single plugin, `alchemy`.
+This repository is a **plugin marketplace**. It contains the Claude Code plugin `alchemy` and a Cursor plugin at `plugins/alchemy-cursor`.
 
 ## Install
 
@@ -40,19 +40,28 @@ If you used them, install them from
 The plugin does not send transactions, swap, bridge, make payments, or sign with a
 wallet, so the skills that cover those flows are not bundled.
 
+## Cursor
+
+`plugins/alchemy-cursor` is an MCP-only plugin for the Cursor Marketplace. It
+points at the same hosted server and does not bundle skills or slash commands.
+Submit that directory from this repository at
+https://cursor.com/marketplace/publish.
+
 ## Repository layout
 
 ```
-.claude-plugin/marketplace.json   # marketplace entry
-plugins/alchemy/                   # the plugin
-  .claude-plugin/plugin.json       # plugin manifest
-  .mcp.json                        # remote MCP server (mcp.alchemy.com)
-  assets/alchemy.png               # plugin icon
-  commands/                        # slash commands
-  skills/                          # vendored, Claude-specific Alchemy skills (generated)
-scripts/sync-skills.sh             # regenerate skills/ from the pinned alchemyplatform/skills commit
-scripts/claude_overrides.py        # Claude-specific rewrite, scan and reference check
-scripts/skills-source.lock         # pinned alchemyplatform/skills commit SHA
+.claude-plugin/marketplace.json    # Claude Code marketplace entry
+.cursor-plugin/marketplace.json    # Cursor marketplace entry
+plugins/alchemy/                    # Claude Code plugin
+  .claude-plugin/plugin.json        # plugin manifest
+  .mcp.json                         # remote MCP server (mcp.alchemy.com)
+  assets/alchemy.png                # plugin icon
+  commands/                         # slash commands
+  skills/                           # vendored, Claude-specific Alchemy skills (generated)
+plugins/alchemy-cursor/             # Cursor plugin (MCP only)
+scripts/sync-skills.sh              # regenerate skills/ from the pinned alchemyplatform/skills commit
+scripts/claude_overrides.py         # Claude-specific rewrite, scan and reference check
+scripts/skills-source.lock          # pinned alchemyplatform/skills commit SHA
 ```
 
 ## Maintaining skills

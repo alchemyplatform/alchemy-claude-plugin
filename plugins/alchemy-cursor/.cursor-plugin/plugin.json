@@ -1,0 +1,26 @@
+{
+  "name": "alchemy",
+  "displayName": "Alchemy",
+  "version": "0.1.0",
+  "description": "Blockchain data across 100+ chains (token prices, NFTs, transfers, simulation, traces, Solana DAS) and Alchemy app management through Alchemy's hosted MCP server. Read-oriented: no tool signs or sends transactions.",
+  "author": {
+    "name": "Alchemy",
+    "email": "support@alchemy.com"
+  },
+  "homepage": "https://docs.alchemy.com/docs/alchemy-mcp-server",
+  "repository": "https://github.com/alchemyplatform/alchemy-claude-plugin",
+  "license": "MIT",
+  "logo": "assets/logo.png",
+  "keywords": [
+    "alchemy",
+    "blockchain",
+    "web3",
+    "ethereum",
+    "solana",
+    "nft",
+    "rpc",
+    "token prices",
+    "mcp"
+  ],
+  "mcpServers": "./mcp.json"
+}
