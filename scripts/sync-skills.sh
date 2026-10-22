@@ -2,34 +2,178 @@
 # Refresh the vendored skills in plugins/alchemy/skills/ from the canonical
 # source repo (alchemyplatform/skills). The Claude Code plugin format requires
 # skills to live inside the plugin, so we vendor them here.
+#
+# The source commit is pinned in scripts/skills-source.lock. Skills are copied
+# into a staging directory, rewritten for Claude Code by
+# scripts/claude_overrides.py, and only then swapped into place.
+#
+#   ./scripts/sync-skills.sh            vendor the pinned commit
+#   ./scripts/sync-skills.sh --update   resolve the source ref (default: main),
+#                                       vendor it, and rewrite the lock file
 set -euo pipefail
 
 SRC_REPO="${ALCHEMY_SKILLS_REPO:-https://github.com/alchemyplatform/skills.git}"
 SRC_REF="${ALCHEMY_SKILLS_REF:-main}"
 
-# Alchemy skills to vendor into the plugin. Partner/ecosystem skills
-# (e.g. skills/ecosystem/*) are intentionally excluded.
-SKILLS=(agentic-gateway alchemy-api alchemy-cli alchemy-mcp)
+# Alchemy skills to vendor into the plugin. alchemy-cli and agentic-gateway are
+# intentionally excluded (they cover sends, swaps, bridges and payments), as are
+# partner/ecosystem skills (e.g. skills/ecosystem/*).
+SKILLS=(alchemy-api alchemy-mcp)
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-DEST="$ROOT/plugins/alchemy/skills"
+LOCK="$ROOT/scripts/skills-source.lock"
+PLUGIN_DIR="$ROOT/plugins/alchemy"
+DEST="$PLUGIN_DIR/skills"
+
+UPDATE=0
+case "${1:-}" in
+  "") ;;
+  --update) UPDATE=1 ;;
+  *)
+    echo "usage: $0 [--update]" >&2
+    exit 2
+    ;;
+esac
+
 TMP="$(mktemp -d)"
-trap 'rm -rf "$TMP"' EXIT
+STAGING=""
+BACKUP=""
+SWAPPING=0
+COMMITTED=0
+LOCK_NEW=""
+LOCK_PREV="$TMP/skills-source.lock.prev"
+LOCK_HAD=0
+LOCK_TOUCHED=0
 
-echo "Cloning $SRC_REPO ($SRC_REF)..."
-git clone --depth 1 --branch "$SRC_REF" "$SRC_REPO" "$TMP/skills" >/dev/null 2>&1
-
-echo "Syncing skills into $DEST ..."
-rm -rf "$DEST"
-mkdir -p "$DEST"
-for skill in "${SKILLS[@]}"; do
-  if [ -d "$TMP/skills/skills/$skill" ]; then
-    cp -R "$TMP/skills/skills/$skill" "$DEST/"
-    echo "  + $skill"
-  else
-    echo "  ! missing in source: $skill" >&2
+# On failure before the commit point, put back both the previous skills
+# directory and the previous lock file. A signal can land between any two
+# commands, so recovery keys off COMMITTED (one assignment) and also handles an
+# interruption right after the backup rename, before swap mode is entered.
+cleanup() {
+  status=$?
+  trap - EXIT
+  if [ "$status" -ne 0 ] && [ "$COMMITTED" -eq 0 ]; then
+    if [ "$SWAPPING" -eq 0 ] && [ -n "$BACKUP" ] && [ -e "$BACKUP" ] && [ ! -e "$DEST" ]; then
+      mv "$BACKUP" "$DEST"
+      echo "Restored the previous $DEST" >&2
+    elif [ "$SWAPPING" -eq 1 ]; then
+      rm -rf "$DEST"
+      if [ -n "$BACKUP" ] && [ -e "$BACKUP" ]; then
+        mv "$BACKUP" "$DEST"
+        echo "Restored the previous $DEST" >&2
+      else
+        echo "Removed the incomplete $DEST" >&2
+      fi
+    fi
+    if [ "$LOCK_TOUCHED" -eq 1 ]; then
+      if [ "$LOCK_HAD" -eq 1 ]; then
+        cp "$LOCK_PREV" "$LOCK.restore.$$"
+        mv "$LOCK.restore.$$" "$LOCK"
+      else
+        rm -f "$LOCK"
+      fi
+      echo "Restored the previous $LOCK" >&2
+    fi
   fi
+  if [ "$COMMITTED" -eq 1 ] && [ -n "$BACKUP" ]; then
+    rm -rf "$BACKUP"
+  fi
+  [ -z "$STAGING" ] || rm -rf "$STAGING"
+  [ -z "$LOCK_NEW" ] || rm -f "$LOCK_NEW"
+  rm -rf "$TMP"
+  exit "$status"
+}
+trap cleanup EXIT
+trap 'exit 130' INT TERM HUP
+
+CLONE="$TMP/skills"
+
+if [ "$UPDATE" -eq 1 ]; then
+  echo "Cloning $SRC_REPO ($SRC_REF)..."
+  git clone --quiet --branch "$SRC_REF" "$SRC_REPO" "$CLONE"
+  SHA="$(git -C "$CLONE" rev-parse HEAD)"
+else
+  SHA="$(tr -d '[:space:]' < "$LOCK")"
+  if ! [[ "$SHA" =~ ^[0-9a-f]{40}$ ]]; then
+    echo "error: $LOCK must contain one full 40-character commit SHA" >&2
+    exit 1
+  fi
+  echo "Cloning $SRC_REPO and checking out $SHA..."
+  git clone --quiet "$SRC_REPO" "$CLONE"
+  git -C "$CLONE" checkout --quiet --detach "$SHA"
+  if [ "$(git -C "$CLONE" rev-parse HEAD)" != "$SHA" ]; then
+    echo "error: checked out commit does not match $SHA" >&2
+    exit 1
+  fi
+fi
+
+# Staging lives next to the destination so the final move is a rename.
+STAGING="$(mktemp -d "$PLUGIN_DIR/.skills-staging.XXXXXX")"
+chmod 755 "$STAGING"
+
+echo "Staging skills from $SHA ..."
+for skill in "${SKILLS[@]}"; do
+  if [ ! -d "$CLONE/skills/$skill" ] || [ -L "$CLONE/skills/$skill" ]; then
+    echo "error: skill missing in source (or a symlink): $skill" >&2
+    exit 1
+  fi
+  cp -RP "$CLONE/skills/$skill" "$STAGING/"
+  echo "  + $skill"
 done
 
-echo "Done. Vendored skills:"
+if [ -n "$(find "$STAGING" -type l -print)" ]; then
+  echo "error: symlinks are not allowed in the vendored skills:" >&2
+  find "$STAGING" -type l -print >&2
+  exit 1
+fi
+
+echo "Applying Claude Code overrides ..."
+python3 "$ROOT/scripts/claude_overrides.py" "$STAGING"
+
+printf '%s\n' "$SHA" > "$STAGING/.source-commit"
+if [ "$UPDATE" -eq 1 ]; then
+  # The new lock is written next to the real one so publishing it is a rename.
+  LOCK_NEW="$(mktemp "$LOCK.XXXXXX")"
+  chmod 644 "$LOCK_NEW"
+  printf '%s\n' "$SHA" > "$LOCK_NEW"
+  if [ -e "$LOCK" ]; then
+    cp "$LOCK" "$LOCK_PREV"
+    LOCK_HAD=1
+  fi
+fi
+
+# Publish the validated tree (.source-commit is inside it) and, with --update,
+# the new lock. This is not atomic: there is a brief window between the two
+# renames where $DEST does not exist. If anything fails from here until the
+# commit point below, the cleanup trap restores the previous skills directory
+# from the backup and the previous lock content.
+# Enter swap mode only after the backup rename has succeeded, so a failed
+# rename never makes the cleanup trap delete the original tree. BACKUP is
+# recorded before the rename so an interruption right after it can still be
+# undone.
+if [ -e "$DEST" ]; then
+  BACKUP="$PLUGIN_DIR/.skills-backup.$$"
+  rm -rf "$BACKUP"
+  mv "$DEST" "$BACKUP"
+fi
+SWAPPING=1
+mv "$STAGING" "$DEST"
+STAGING=""
+if [ "$UPDATE" -eq 1 ]; then
+  LOCK_TOUCHED=1
+  mv "$LOCK_NEW" "$LOCK"
+  LOCK_NEW=""
+fi
+
+# Commit point: the swap and the lock are both published, so drop the backup.
+COMMITTED=1
+if [ -n "$BACKUP" ]; then
+  rm -rf "$BACKUP"
+fi
+
+if [ "$UPDATE" -eq 1 ]; then
+  echo "Pinned source commit updated: $SHA"
+fi
+
+echo "Done. Vendored skills (source $SHA):"
 ls -1 "$DEST"

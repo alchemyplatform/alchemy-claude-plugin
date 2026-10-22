@@ -30,17 +30,17 @@ Build a full wallet portfolio by combining token balances, NFT ownership, and op
 
 ## Example (Token Balances)
 ```bash
-curl -s "https://api.g.alchemy.com/data/v1/$ALCHEMY_API_KEY/assets/tokens/balances/by-address?address=0x00000000219ab540356cbb839cbe05303d7705fa"
+curl -s "https://api.g.alchemy.com/data/v1/YOUR_API_KEY/assets/tokens/balances/by-address?address=0x00000000219ab540356cbb839cbe05303d7705fa"
 ```
 
 ## Example (NFTs)
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
 ```
 
 ## Example (Prices)
 ```bash
-curl -s "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/by-symbol?symbols=ETH&symbols=USDC"
+curl -s "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/by-symbol?symbols=ETH&symbols=USDC"
 ```
 
 ## Output

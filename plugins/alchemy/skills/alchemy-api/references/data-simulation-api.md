@@ -43,7 +43,7 @@ Single parameter: a `transaction` object.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -125,7 +125,7 @@ Ordered parameters: `transaction`, `blockTag`.
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -224,7 +224,7 @@ Single parameter: `transactions` array (same transaction object format). **Max 3
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -273,7 +273,7 @@ Ordered parameters: `transactions`, `blockTag`. Same as `simulateExecution` but 
 ### Request
 
 ```bash
-curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -306,16 +306,8 @@ Returns an array of results, one per transaction. Each result has `calls` and `l
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy simulate asset-changes --tx '{"from":"0xd8dA...","to":"0xA0b8...","data":"0xa9059cbb..."}' --json --no-interactive
-  alchemy simulate execution --tx '{"from":"0xd8dA...","to":"0xA0b8...","data":"0xa9059cbb..."}'
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `simulateAssetChanges`, `simulateExecution`, `simulateAssetChangesBundle`, `simulateExecutionBundle` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/{chainNetwork}/v2` (x402) or `https://mpp.alchemy.com/{chainNetwork}/v2` (MPP).
 
 ## Official Docs
 - [Simulation API Overview](https://www.alchemy.com/docs/data/simulation-api)

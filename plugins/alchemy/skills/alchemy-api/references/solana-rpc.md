@@ -8,8 +8,7 @@ tags:
   - json-rpc
 related:
   - solana-das-api.md
-  - solana-wallets.md
-updated: 2026-02-23
+updated: 2026-08-24
 ---
 # Solana JSON-RPC
 
@@ -35,7 +34,7 @@ Returns the SOL balance for an account.
 ### Request
 
 ```bash
-curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -77,7 +76,7 @@ Returns account data including owner program and lamport balance.
 ### Request
 
 ```bash
-curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -140,7 +139,7 @@ Returns confirmed signatures (transaction hashes) for an address.
 ### Request
 
 ```bash
-curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -201,7 +200,7 @@ Returns details for a confirmed transaction.
 ### Request
 
 ```bash
-curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{
     "jsonrpc": "2.0",
@@ -233,6 +232,36 @@ curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
 
 ---
 
+## `getTransactionsForAddress`
+
+Returns confirmed transactions for an address with richer filtering than `getSignaturesForAddress`. Use this when you need the full transaction objects (not just signatures) and want to filter by status, slot range, block time, or token accounts in one call.
+
+### Parameters
+
+| Parameter | Type | Required | Default | Description |
+|-----------|------|----------|---------|-------------|
+| `address` | string | Yes | — | Base58 public key |
+| `config.transactionDetails` | string | No | `"signatures"` | `"signatures"` returns just signatures; `"full"` returns full transactions |
+| `config.sortOrder` | string | No | `"desc"` | `"asc"` (oldest first) or `"desc"` (newest first) |
+| `config.limit` | integer | No | `1000` | Max results (max 1000) |
+| `config.paginationToken` | string | No | — | Cursor from a prior response |
+| `config.before` | string | No | — | Return results before this signature |
+| `config.until` | string | No | — | Return results until this signature |
+| `config.encoding` | string | No | `"json"` | `"json"`, `"jsonParsed"`, `"base64"` (only when `transactionDetails: "full"`) |
+| `config.maxSupportedTransactionVersion` | integer | No | — | Set to `0` for versioned transactions |
+| `config.filters.status` | string | No | — | `"any"`, `"succeeded"`, or `"failed"` |
+| `config.filters.slot` | object | No | — | `{ gte, lte }` range filter on slot number |
+| `config.filters.blockTime` | object | No | — | `{ gte, lte }` range filter on Unix timestamp |
+| `config.filters.tokenAccounts` | string[] | No | — | Only return transactions touching these token accounts |
+
+### Response
+
+Returns `{ data, paginationToken }`. `data` is an array of signature objects (default) or full transaction objects (when `transactionDetails: "full"`). `paginationToken` is `null` when no more pages are available.
+
+Prefer `getTransactionsForAddress` over `getSignaturesForAddress` + per-signature `getTransaction` calls when you need full transactions for an address — it's a single call instead of N+1.
+
+---
+
 ## Other Common Methods
 
 | Method | Description |
@@ -241,7 +270,6 @@ curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
 | `getBlockHeight` | Current block height |
 | `getRecentBlockhash` | Recent blockhash for transaction signing |
 | `getLatestBlockhash` | Latest blockhash with expiry info |
-| `sendTransaction` | Submit a signed transaction |
 | `simulateTransaction` | Simulate a transaction |
 | `getProgramAccounts` | Accounts owned by a program |
 | `getTokenAccountsByOwner` | SPL token accounts for a wallet |
@@ -254,6 +282,44 @@ curl -s -X POST https://solana-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
 - Account data is base64-encoded by default. Use `"jsonParsed"` encoding for human-readable output.
 - Always set `commitment` explicitly for consistency (`"finalized"` is safest).
 - For versioned transactions, set `maxSupportedTransactionVersion: 0`.
+
+## Account Archive (historical `getAccountInfo`, `getBalance`, `getTokenAccountBalance`)
+
+Alchemy's Solana **Account Archive** service supports historical point-in-time queries against `getAccountInfo`, `getBalance`, and `getTokenAccountBalance` — same request/response shape as the standard methods, no separate endpoint. Coverage backfills from July 2025 forward.
+
+Three mutually-exclusive optional params control the archival lookup (all three are also mutually exclusive with the standard `minContextSlot`):
+
+| Param | Applies to | Semantic |
+|---|---|---|
+| `slot` | All three methods | Return state AS OF slot `S` — the most recent write with `slot <= S`. |
+| `lastUpdateBeforeSlot` | `getAccountInfo` only | Return the most recent write STRICTLY BEFORE slot `S`. |
+| `firstUpdateAfterSlot` | `getAccountInfo` only | Return the first write STRICTLY AFTER slot `S`. |
+
+`getBalance` and `getTokenAccountBalance` support ONLY the `slot` param; passing `lastUpdateBeforeSlot` or `firstUpdateAfterSlot` on those methods yields `-32602 X is not supported for this method; only slot`.
+
+Omit all three params for latest-state (drop-in superset behavior with the standard methods).
+
+**Error codes**:
+- `-32020` — Slot out of coverage (below the earliest indexed slot, or above the latest known slot).
+- `-32602` — Invalid params (mutual exclusion violated, or unsupported archive param for this method).
+
+See the [Account Archive guide](https://www.alchemy.com/docs/reference/solana-account-archive) for cursor iteration patterns and the trust model.
+
+### Historical *ByOwnerAtSlot methods (`getTokenAccountsByOwnerAtSlot`, `getBalanceByOwnerAtSlot`)
+Separate NEW methods (distinct from the standard-methods-with-`slot`-param above) for owner-scoped historical queries on Solana mainnet:
+
+| Method | Params (by-name) | Returns |
+|---|---|---|
+| `getTokenAccountsByOwnerAtSlot` | `owner` (Pubkey, required), `filter` = `{ mint }` OR `{ programId }` (required), optional `config`: `slot`, `pageKey`, `pageLimit`, `encoding`, `commitment`, `dataSlice`. | `{ context.slot, value[].{ pubkey, account }, pageKey }`. |
+| `getBalanceByOwnerAtSlot` | `wallet` (Pubkey, required; `owner` accepted as alias), `mint` (Pubkey, required), `slot` (integer, required, no default), `scope` (`"all"` \| `"ata"`, default `"all"`, case-sensitive). | Sum of the wallet's SPL / Token-2022 balance for the single mint at `slot`, already aggregated across every token account the wallet held. |
+
+Notes:
+- Solana mainnet only. Not available on devnet/testnet.
+- `getBalanceByOwnerAtSlot` has NO "latest" default — `slot` is required. Use standard `getBalance` or `getTokenAccountBalance` for live state.
+- `paramStructure: by-name` (send `params` as an object, not an array).
+- `scope: "ata"` restricts the sum to the wallet's Associated Token Account; `scope: "all"` sums across every account the wallet controls for that mint (including non-ATA accounts).
+- Pagination on `getTokenAccountsByOwnerAtSlot` uses `pageKey` / `pageLimit`; the response includes a next-page `pageKey` when more results exist.
+- Point-in-time coverage matches the Account Archive service (from July 2025 forward).
 
 ## Official Docs
 - [Solana API Quickstart](https://www.alchemy.com/docs/reference/solana-api-quickstart)

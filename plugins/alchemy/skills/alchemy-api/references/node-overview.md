@@ -39,26 +39,14 @@ Core JSON-RPC and WebSocket APIs for EVM chains via Alchemy node endpoints, plus
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy balance 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --json --no-interactive
-  alchemy tx 0x3847245c01829b...
-  alchemy block latest
-  alchemy rpc eth_blockNumber
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `ethBlockNumber`, `ethGetBalance`, `ethGetTransactionByHash`, `ethGetBlockByNumber`, `ethGasPrice`, `ethGetLogs` (full list in the `alchemy-mcp` skill catalog).
 
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/{chainNetwork}/v2` (x402) or `https://mpp.alchemy.com/{chainNetwork}/v2` (MPP).
-
 ## Cross-References
-- `data-apis` skill for higher-level asset analytics.
-- `webhooks` skill for event-driven flows.
-- `operational` skill for auth, limits, and reliability.
-- `alchemy-cli` skill for live agent work via the local CLI (preferred local fallback).
-- `alchemy-mcp` skill for live agent work via the hosted MCP server (when CLI is not installed).
-- `agentic-gateway` skill for app code without an API key (x402 or MPP).
+- `references/data-overview.md` for higher-level asset analytics.
+- `references/webhooks-overview.md` for event-driven flows.
+- `references/operational-auth-and-keys.md`, `references/operational-rate-limits-and-compute-units.md`, and `references/operational-best-practices.md` for auth, limits, and reliability.
+- `alchemy-mcp` skill for live agent work via the hosted MCP server.
 
 ## Official Docs
 - [Chain APIs Overview](https://www.alchemy.com/docs/reference/chain-apis-overview)

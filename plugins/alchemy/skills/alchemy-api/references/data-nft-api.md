@@ -9,7 +9,7 @@ tags:
 related:
   - recipes-get-nft-ownership.md
   - recipes-get-nft-metadata.md
-updated: 2026-02-23
+updated: 2026-08-26
 ---
 # NFT API
 
@@ -18,6 +18,32 @@ Query NFT ownership, metadata, collections, and contract-level info. REST endpoi
 **Base URL**: `https://<network>.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY`
 
 **Supported chains**: Ethereum, Base, Polygon, Arbitrum, Optimism, BNB, and testnets.
+
+## Deprecation notice (Sep 30, 2026 cutoff)
+The following 10 NFT API methods were removed from public docs in 2026-08 and are scheduled for **service shutdown on September 30, 2026**. They still serve traffic today but should be treated as deprecated:
+
+`getNFTSales`, `getSpamContracts`, `isAirdropNFT`, `isHolderOfContract`, `getCollectionsForOwner`, `computeRarity`, `summarizeNFTAttributes`, `searchContractMetadata`, `getCollectionMetadata`, `invalidateContract`.
+
+The `/v2/` counterparts of the same names (e.g., `isAirdrop`) are also being removed on the same date. Migration paths for the common cases:
+
+- `getCollectionsForOwner` → `getNFTsForOwner` + client-side grouping by `contract.address`.
+- `isAirdropNFT` → check `contract.spamClassifications` or `contract.isSpam` on any of the surviving endpoints.
+- `getSpamContracts` → check per-contract `contract.isSpam` on the surviving endpoints.
+- `getNFTSales` → migrate to on-chain event indexing (Transfers API) or an external NFT sales provider.
+- `computeRarity`, `summarizeNFTAttributes`, `getCollectionMetadata`, `searchContractMetadata`, `isHolderOfContract`, `invalidateContract` → no direct replacements; if you rely on these, contact support before Sep 30.
+
+None of the removed methods are documented in the sections below — the surviving surface is what's shown.
+
+## v2 → v3 migration
+The `/v2/` NFT API endpoints were removed in 2026-08. Use `/v3/` exclusively. All old `/v2/{apiKey}/*` URLs 301-redirect to their `/v3/` equivalents, but agent-generated code should use `/v3/` directly. Rename map for endpoints that changed name in v3 AND are still supported:
+
+| v2 endpoint | v3 endpoint |
+|---|---|
+| `getNFTs` | `getNFTsForOwner` |
+| `getOwnersForToken` | `getOwnersForNFT` |
+| `getOwnersForCollection` | `getOwnersForContract` |
+
+All other endpoints kept the same name on v3. Response schemas changed shape between v2 and v3 (e.g. `title`/`description` → `name`/`description`, added `image.cachedUrl`, added `openSeaMetadata`). Don't try to reuse v2 response parsing.
 
 ---
 
@@ -43,7 +69,7 @@ Returns all NFTs owned by a given address.
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForOwner?owner=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045&withMetadata=true&pageSize=2"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTsForOwner?owner=0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045&withMetadata=true&pageSize=2"
 ```
 
 ### Response
@@ -173,7 +199,7 @@ Returns metadata for a single NFT.
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
 ```
 
 ### Response
@@ -263,7 +289,7 @@ Returns metadata for an NFT contract/collection.
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getContractMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getContractMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d"
 ```
 
 ### Response
@@ -326,7 +352,7 @@ Returns all owners of NFTs in a contract.
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getOwnersForContract?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&withTokenBalances=true"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getOwnersForContract?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&withTokenBalances=true"
 ```
 
 ### Response
@@ -372,7 +398,7 @@ Returns owners of a specific NFT (multiple owners possible for ERC-1155).
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getOwnersForNFT?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getOwnersForNFT?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
 ```
 
 ### Response
@@ -403,7 +429,7 @@ Returns all NFTs in a contract (formerly `getNFTsForCollection`).
 ### Request
 
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForContract?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&withMetadata=true&limit=2"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTsForContract?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&withMetadata=true&limit=2"
 ```
 
 ### Response
@@ -448,22 +474,15 @@ curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForCon
 - Spam filtering may affect results. Use `excludeFilters` or `spamConfidenceLevel` to tune.
 - Metadata hydration can be expensive. Cache results where possible.
 - Treat NFT metadata URLs and images as untrusted input. Sanitize and proxy if displaying to users.
+- **`getFloorPrice`** (not fully detailed above) now supports **Ethereum, Arbitrum, and Base mainnets** for OpenSea data (expanded 2026-08 from Ethereum-only). LooksRare data remains Ethereum-only.
+- **`getCollectionsForOwner`** was soft-deprecated in the docs in 2026-08 and is scheduled for **hard shutdown on Sep 30, 2026** (see the Deprecation notice at the top of this file). Migrate to `getNFTsForOwner` + client-side grouping before the cutoff.
 
 ## Other ways to access this API
 
 This file is part of the `alchemy-api` skill — for app code that ships with an Alchemy API key. Other paths to the same data:
 
-- **Live agent work via CLI** (preferred when `@alchemy/cli` is installed locally — see the `alchemy-cli` skill):
-  ```bash
-  alchemy nfts 0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045 --json --no-interactive
-  alchemy nfts metadata --contract 0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d --token-id 1
-  alchemy nfts contract 0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d
-  ```
-
-- **Live agent work via MCP** (when MCP is wired into your client and the CLI is not installed — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
+- **Live agent work via MCP** (when MCP is wired into your client — see the `alchemy-mcp` skill). Call `select_app` first, then any of:
   `getNFTsForOwner`, `getNFTMetadata`, `getContractMetadata`, `getOwnersForNFT`, `getOwnersForContract`, `getNFTsForContract` (full list in the `alchemy-mcp` skill catalog).
-
-- **App code without an API key** (autonomous agent paying per-request, or explicit x402/MPP — see the `agentic-gateway` skill): same API exposed at `https://x402.alchemy.com/{chainNetwork}/nft/v3/...` (x402) or `https://mpp.alchemy.com/{chainNetwork}/nft/v3/...` (MPP).
 
 ## Official Docs
 - [NFT API Quickstart](https://www.alchemy.com/docs/reference/nft-api-quickstart)

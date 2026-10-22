@@ -27,7 +27,7 @@ Fetch metadata for a specific NFT token.
 
 ## Example (curl)
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTMetadata?contractAddress=0xbc4ca0eda7647a8ab7c2061c2e118a18a936f13d&tokenId=1"
 ```
 
 ## Example (TypeScript)

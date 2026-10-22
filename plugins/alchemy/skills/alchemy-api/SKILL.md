@@ -1,6 +1,6 @@
 ---
 name: alchemy-api
-description: Wire Alchemy into application code (server, backend, dApp, script) using a standard API key. Preferred app-integration path for normal server/backend usage. Covers EVM JSON-RPC, Token API, NFT API, Transfers API, Prices API, Portfolio API, Simulation, Webhooks, Solana RPC, Solana DAS, Solana Yellowstone gRPC, Sui gRPC, Wallets/Account Kit, and operational topics. Requires `$ALCHEMY_API_KEY`. For live agent work in this session (querying, admin, local automation), use `alchemy-cli` (preferred) or `alchemy-mcp` instead. For app code without an API key (autonomous agent paying per-request, or explicit x402/MPP), use `agentic-gateway` instead.
+description: Wire Alchemy into application code (server, backend, dApp, script) using a standard API key. Preferred app-integration path for normal server/backend usage. Covers EVM JSON-RPC, Token API, NFT API, Transfers API, Prices API, Portfolio API, Simulation, Webhooks, Solana RPC, Solana DAS, Solana Yellowstone gRPC, Sui gRPC, and operational topics. Requires `$ALCHEMY_API_KEY`. For live agent work in this session (querying, admin, local automation), use `alchemy-mcp` instead. No API key yet? Copy one from the Alchemy Dashboard (https://dashboard.alchemy.com), or use `alchemy-mcp` for live work in this session (OAuth sign-in, no key needed).
 license: MIT
 compatibility: Requires network access and `$ALCHEMY_API_KEY` environment variable. Works across Claude.ai, Claude Code, Cursor, Codex, and API.
 metadata:
@@ -24,70 +24,21 @@ This is the **preferred app-integration path** for normal server/backend usage.
 
 | Situation | Use this skill instead |
 | --- | --- |
-| Live agent work in this session (queries, admin, on-machine automation) and `@alchemy/cli` is installed locally — or both CLI and MCP are available | `alchemy-cli` |
-| Live agent work in this session and only MCP is wired into the client (no CLI) | `alchemy-mcp` |
-| Live agent work and neither is available | install `alchemy-cli` and use `alchemy-cli` |
-| Application code without an API key — autonomous agent paying per-request, or user explicitly wants x402/MPP | `agentic-gateway` |
+| Live agent work in this session (queries, admin, on-machine automation); no API key needed, sign in with OAuth | `alchemy-mcp` |
 
-Do **not** use this skill to run ad-hoc live queries from inside the agent session — that's the `alchemy-cli` / `alchemy-mcp` path. This skill is for code that ships.
+Do **not** use this skill to run ad-hoc live queries from inside the agent session — that's the `alchemy-mcp` path. This skill is for code that ships.
 
 ## Mandatory preflight gate
 
 Before writing application code or making any network call:
 
-1. Confirm the user is building **application code** (not asking the agent to run a live query). If the user is asking for live work, redirect to `alchemy-cli` (preferred) or `alchemy-mcp`.
-2. Check `$ALCHEMY_API_KEY` is set (e.g. `echo $ALCHEMY_API_KEY`).
+1. Confirm the user is building **application code** (not asking the agent to run a live query). If the user is asking for live work, redirect to `alchemy-mcp`.
+2. Check `$ALCHEMY_API_KEY` is set without printing it (e.g. `[ -n "$ALCHEMY_API_KEY" ] && echo set || echo missing`).
 3. If `$ALCHEMY_API_KEY` is unset or empty, take the first of these that applies:
-   - **CLI bridge (recommended if `@alchemy/cli` is installed locally):** the CLI can fetch a key from the user's Alchemy account so they never have to leave the terminal. See [Bridging from the CLI to an API key](#bridging-from-the-cli-to-an-api-key) below.
-   - Tell the user they can create a free API key at [https://dashboard.alchemy.com/](https://dashboard.alchemy.com/), **or**
-   - Switch to the `agentic-gateway` skill (x402/MPP gateway, wallet-based auth, no API key needed).
+   - For live work in this session, use the `alchemy-mcp` skill (the bundled Alchemy MCP server signs in with OAuth, no API key needed), **or**
+   - For application code, tell the user they can create a free API key at [https://dashboard.alchemy.com/](https://dashboard.alchemy.com/) and copy it into `ALCHEMY_API_KEY`.
 
 You MUST NOT call any keyless or public fallback (including `.../v2/demo`) unless the user explicitly asks for that endpoint. No public RPC endpoints (publicnode, llamarpc, cloudflare-eth, etc.) as a fallback.
-
-### Bridging from the CLI to an API key
-
-If `@alchemy/cli` is installed locally (verify with `command -v alchemy`), use it to obtain a key without leaving the terminal **and persist it to the project's `.env` file** so it survives across terminal sessions and is available to the app at runtime.
-
-> **Security:** NEVER echo, print, or otherwise surface the extracted API key value in conversation output. Refer to it only as `$ALCHEMY_API_KEY` after exporting. Treat it the same as a password.
-
-```bash
-# 1. Try to read a cached key from the CLI config (read-only, safe to run non-interactively).
-KEY="$(alchemy --no-interactive --json --reveal config get api-key 2>/dev/null | jq -r .value)"
-
-# 2. If empty/null (no key cached yet), run the interactive flow.
-#    Note: auth login opens a browser and apps select shows a picker, so do NOT pass
-#    --no-interactive here. If you already know the app id, pass it explicitly to skip
-#    the picker: `alchemy --no-interactive --json apps select <id>`.
-if [ -z "$KEY" ] || [ "$KEY" = "null" ]; then
-  alchemy auth login              # opens browser; derives auth credentials
-  alchemy --json apps select      # interactive picker (omit --no-interactive so it can render)
-  KEY="$(alchemy --no-interactive --json --reveal config get api-key | jq -r .value)"
-fi
-
-# 3. Persist to the project's .env (standard practice for app code so the key
-#    survives terminal restarts and is loaded by dotenv / framework env loaders).
-#    Use .env.local instead if your framework expects that (e.g. Next.js).
-ENV_FILE=".env"   # or ".env.local" depending on the project convention
-touch "$ENV_FILE"
-if grep -q '^ALCHEMY_API_KEY=' "$ENV_FILE"; then
-  # Replace existing line in-place (portable across BSD/GNU sed)
-  sed -i.bak "s|^ALCHEMY_API_KEY=.*|ALCHEMY_API_KEY=$KEY|" "$ENV_FILE" && rm "$ENV_FILE.bak"
-else
-  echo "ALCHEMY_API_KEY=$KEY" >> "$ENV_FILE"
-fi
-
-# 4. Make sure the env file is git-ignored.
-grep -qxF "$ENV_FILE" .gitignore 2>/dev/null || echo "$ENV_FILE" >> .gitignore
-
-# 5. Also export to the current shell so the agent can immediately call the API.
-export ALCHEMY_API_KEY="$KEY"
-```
-
-> **Why we persist to `.env`:** without it, the key is only set for the current shell session and disappears when the terminal tab closes. App code typically loads `.env` via `dotenv` (Node), `python-dotenv` (Python), `direnv`, or framework-native loaders (Next.js, Vite, Bun, Deno, Rails, etc.), so writing to `.env` is the canonical way to make the key durable for both `npm run dev` and the deployed app's local copy.
-
-> **Why this whole flow works:** the CLI is a runtime executor (`alchemy-cli` skill). When the user has it installed, you can use it to provision the credential that this app-code skill needs, write it to a place the application will load, then hand off to the rest of the `alchemy-api` flow. After step 5, continue with the [Base URLs + auth](#base-urls--auth-cheat-sheet) and [Quickstart](#one-file-quickstart-copypaste) below.
-
-> **Gotcha:** if `auth login` succeeded but `config get api-key` still returns "not found," the CLI's `setup status` may have falsely reported `complete: true` with only an `auth_token`. Re-run `alchemy --json apps select` (or pass an explicit `<id>` with `--no-interactive`) to bind a default app, then retry. See the `alchemy-cli` skill for the same gotcha documented under Preflight.
 
 ## Summary
 
@@ -137,48 +88,49 @@ Developers can always create a free API key at [https://dashboard.alchemy.com/](
 | Simulate tx | `alchemy_simulateAssetChanges` | `references/data-simulation-api.md` |
 | Create webhook | `POST /create-webhook` | `references/webhooks-details.md` |
 | Solana NFT data | `getAssetsByOwner` (DAS) | `references/solana-das-api.md` |
+| Solana realtime events (per-account / per-program / logs / tx status) | `accountSubscribe`, `programSubscribe`, `logsSubscribe`, `signatureSubscribe` (PubSub WebSocket) | `references/solana-websocket-subscriptions.md` |
 | Sui objects/txs | `GetObject`, `GetTransaction` (gRPC) | `references/sui-grpc-objects-and-ledger.md` |
 | Sui balances | `GetBalance`, `ListBalances` (gRPC) | `references/sui-grpc-state-and-balances.md` |
 | Sui checkpoints stream | `SubscribeCheckpoints` (gRPC) | `references/sui-grpc-subscriptions.md` |
 
 ## One-file quickstart (copy/paste)
 
-> **No API key?** Use the `agentic-gateway` skill instead. Replace API-key URLs with `https://x402.alchemy.com/eth-mainnet/v2` and add `Authorization: SIWE <token>` (or `SIWS <token>` for a Solana wallet). See the `agentic-gateway` skill for setup.
+> **No API key?** For live work in this session, use the bundled Alchemy MCP server (sign in with OAuth). Its `list_apps` and `select_app` tools (or `create_app`, then `select_app`) choose the app the MCP uses, but they don't reveal raw keys. For application code, copy your API key from the Alchemy Dashboard (https://dashboard.alchemy.com) into `ALCHEMY_API_KEY`.
 
 ### EVM JSON-RPC (read)
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"eth_blockNumber","params":[]}'
 ```
 
 ### Token balances
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_getTokenBalances","params":["0x00000000219ab540356cbb839cbe05303d7705fa"]}'
 ```
 
 ### Transfer history
 ```bash
-curl -s https://eth-mainnet.g.alchemy.com/v2/$ALCHEMY_API_KEY \
+curl -s https://eth-mainnet.g.alchemy.com/v2/YOUR_API_KEY \
   -H "Content-Type: application/json" \
   -d '{"jsonrpc":"2.0","id":1,"method":"alchemy_getAssetTransfers","params":[{"fromBlock":"0x0","toBlock":"latest","toAddress":"0x00000000219ab540356cbb839cbe05303d7705fa","category":["erc20"],"withMetadata":true,"maxCount":"0x3e8"}]}'
 ```
 
 ### NFT ownership
 ```bash
-curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/$ALCHEMY_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
+curl -s "https://eth-mainnet.g.alchemy.com/nft/v3/YOUR_API_KEY/getNFTsForOwner?owner=0x00000000219ab540356cbb839cbe05303d7705fa"
 ```
 
 ### Prices (spot)
 ```bash
-curl -s "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/by-symbol?symbols=ETH&symbols=USDC"
+curl -s "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/by-symbol?symbols=ETH&symbols=USDC"
 ```
 
 ### Prices (historical)
 ```bash
-curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/historical" \
+curl -s -X POST "https://api.g.alchemy.com/prices/v1/YOUR_API_KEY/tokens/historical" \
   -H "Content-Type: application/json" \
   -d '{"symbol":"ETH","startTime":"2024-01-01T00:00:00Z","endTime":"2024-01-02T00:00:00Z"}'
 ```
@@ -187,7 +139,7 @@ curl -s -X POST "https://api.g.alchemy.com/prices/v1/$ALCHEMY_API_KEY/tokens/his
 ```bash
 curl -s -X POST "https://dashboard.alchemy.com/api/create-webhook" \
   -H "Content-Type: application/json" \
-  -H "X-Alchemy-Token: $ALCHEMY_NOTIFY_AUTH_TOKEN" \
+  -H "X-Alchemy-Token: <ALCHEMY_NOTIFY_AUTH_TOKEN>" \
   -d '{"network":"ETH_MAINNET","webhook_type":"ADDRESS_ACTIVITY","webhook_url":"https://example.com/webhook","addresses":["0x00000000219ab540356cbb839cbe05303d7705fa"]}'
 ```
 
@@ -231,34 +183,30 @@ export function verify(rawBody: string, signature: string, secret: string) {
 
 ## Skill map
 
-For the complete index of all 90+ reference files organized by product area (Node, Data, Webhooks, Solana, Sui gRPC, Wallets, Rollups, Recipes, Operational, Ecosystem), see `references/skill-map.md`.
+For the complete index of all 60+ reference files organized by product area (Node, Data, Webhooks, Solana, Sui gRPC, Rollups, Recipes, Operational), see `references/skill-map.md`.
 
 Quick category overview:
 - **Node**: JSON-RPC, WebSocket, Debug, Trace, Enhanced APIs, Utility
 - **Data**: NFT, Portfolio, Prices, Simulation, Token, Transfers
 - **Webhooks**: Address Activity, Custom (GraphQL), NFT Activity, Payloads, Signatures
-- **Solana**: JSON-RPC, DAS, Yellowstone gRPC (streaming), Wallets
-- **Sui gRPC**: Objects, Transactions, Balances, Move Packages, Name Service, Subscriptions, Signature Verification
-- **Wallets**: Account Kit, Bundler, Gas Manager, Wallet APIs (formerly "Smart Wallets")
+- **Solana**: JSON-RPC, DAS, Yellowstone gRPC (streaming)
+- **Sui gRPC**: Objects, Balances, Move Packages, Name Service, Subscriptions, Signature Verification
 - **Rollups**: L2/L3 deployment overview
 - **Recipes**: 10 end-to-end integration workflows
 - **Operational**: Auth, Rate Limits, Monitoring, Best Practices
-- **Ecosystem**: viem, ethers, wagmi, Hardhat, Foundry, Anchor, and more
 
 ## Handing off to other skills
 
 | The user wants to... | Hand off to |
 | --- | --- |
-| Run a one-off live query, admin command, or on-machine automation in this session (CLI installed) | `alchemy-cli` |
-| Run a one-off live query in this session (only MCP wired in) | `alchemy-mcp` |
-| Build app code without an API key (autonomous agent, or explicit x402/MPP) | `agentic-gateway` |
+| Run a one-off live query, admin command, or on-machine automation in this session | `alchemy-mcp` |
 
 ## Troubleshooting
 
 ### API key not working
-- Verify `$ALCHEMY_API_KEY` is set: `echo $ALCHEMY_API_KEY`
+- Verify `$ALCHEMY_API_KEY` is set without printing it: `[ -n "$ALCHEMY_API_KEY" ] && echo set || echo missing`
 - Confirm the key is valid at [dashboard.alchemy.com](https://dashboard.alchemy.com/)
-- Check if allowlists restrict the key to specific IPs/domains (see `references/operational-allowlists.md`)
+- Check if allowlists restrict the key to specific IPs/domains
 
 ### HTTP 429 (rate limited)
 - Use exponential backoff with jitter before retrying

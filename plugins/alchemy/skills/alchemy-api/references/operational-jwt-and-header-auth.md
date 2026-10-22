@@ -8,7 +8,6 @@ tags:
   - operations
 related:
   - operational-auth-and-keys.md
-  - operational-allowlists.md
 updated: 2026-02-05
 ---
 # JWT and Header-Based Auth
@@ -24,13 +23,12 @@ Some Alchemy APIs use header-based auth (e.g., JWTs or API tokens) instead of AP
 ## Example Pattern
 ```bash
 curl -s https://api.g.alchemy.com/your-endpoint \
-  -H "Authorization: Bearer $ALCHEMY_JWT" \
+  -H "Authorization: Bearer <ALCHEMY_JWT>" \
   -H "Content-Type: application/json"
 ```
 
 ## Related Files
 - `operational-auth-and-keys.md`
-- `operational-allowlists.md`
 
 ## Official Docs
 - [Access Keys](https://www.alchemy.com/docs/how-to-create-access-keys)
