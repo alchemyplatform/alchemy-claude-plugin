@@ -1,0 +1,20 @@
+{
+  "name": "alchemy-cursor-plugins",
+  "owner": {
+    "name": "Alchemy",
+    "email": "support@alchemy.com"
+  },
+  "metadata": {
+    "description": "Alchemy plugins for Cursor",
+    "version": "0.1.0"
+  },
+  "plugins": [
+    {
+      "name": "alchemy",
+      "source": "./plugins/alchemy-cursor",
+      "description": "Blockchain data across 100+ chains through Alchemy's hosted MCP server.",
+      "category": "integrations",
+      "tags": ["alchemy", "blockchain", "web3", "mcp"]
+    }
+  ]
+}
